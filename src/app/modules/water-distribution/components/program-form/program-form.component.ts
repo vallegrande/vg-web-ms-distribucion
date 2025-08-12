@@ -3,7 +3,6 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angula
 import { ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { DistributionProgram } from '../../../../core/models/water-distribution.model';
-import { routes as Route, schedules as Schedule } from '../../../../core/models/distribution.model';
 import { DistributionService } from '../../../../core/services/distribution.service';
 import { User as ResponsibleUser, UserResponseDTO } from '../../../../core/models/user.model';
 import { UserService } from '../../../../core/services/user.service';
@@ -11,6 +10,11 @@ import { organization as Organization } from '../../../../core/models/organizati
 import { OrganizationService } from '../../../../core/services/organization.service';
 import Swal from 'sweetalert2';
 import { ProgramsService } from '../../../../core/services/water-distribution.service';
+import { HttpClient } from '@angular/common/http';
+import { environment } from 'src/environments/environment.production';
+import { zones, street } from '../../../../core/models/organization.model';
+import { OrganizationContextService } from 'app/core/services/organization-context.service';
+import { routes as Route, schedules as Schedule } from '../../../../core/models/distribution.model';
 
 @Component({
   selector: 'app-program-form',
@@ -31,50 +35,109 @@ export class ProgramFormComponent implements OnInit {
   responsible: UserResponseDTO[] = [];
   minDateTime: string = '';
 
-  constructor(
-    private fb: FormBuilder,
-    private route: ActivatedRoute,
-    private router: Router,
-    private programsService: ProgramsService,
-    private distributionService: DistributionService,
-    private userService: UserService,
-    private organizationService: OrganizationService
-  ) {
-    this.programsForm = this.fb.group({
-      programCode: ['', [Validators.required, Validators.maxLength(20)]],
-      programDate: ['', Validators.required],
-      plannedStartTime: ['', Validators.required],
-      plannedEndTime: ['', Validators.required],
-      actualStartTime: [''],
-      actualEndTime: [''],
-      organizationId: ['', Validators.required],
-      routeId: ['', Validators.required],
-      scheduleId: ['', Validators.required],
-      responsibleUserId: ['', Validators.required],
-      status: ['', Validators.required],
-      observations: ['', [
-        Validators.maxLength(300),
-        Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ ]*$/)
-      ]]
+  // 🔹 Nuevas propiedades para que compile
+  selectedOrganization: any = null; 
+  zones: any[] = [];
+  streets: any[] = [];
+
+
+loadZonesByOrganization(orgId: string) {
+  this.organizationService.getZoneById(orgId).subscribe({
+    next: (zone) => {
+      this.zones = [zone]; // Si solo devuelve una, la ponemos en array
+    },
+    error: (err) => console.error('Error al cargar zonas', err)
+  });
+}
+
+
+loadStreetsByZone(zoneId: string) {
+  this.organizationService.getStreetById(zoneId).subscribe({
+    next: (street) => {
+      this.streets = [street];
+    },
+    error: (err) => console.error('Error al cargar calles', err)
+  });
+}
+
+loadRoutes(organizationId: string) {
+  this.distributionService.getRoutesByOrganization(organizationId).subscribe({
+    next: (data: Route[]) => this.routes = data,
+    error: (err) => console.error("❌ Error cargando rutas:", err)
+  });
+}
+
+loadSchedules(organizationId: string) {
+  this.distributionService.getSchedulesByOrganization(organizationId).subscribe({
+    next: (data: Schedule[]) => this.schedules = data,
+    error: (err) => console.error("❌ Error cargando horarios:", err)
+  });
+}
+
+ constructor(
+  private fb: FormBuilder,
+  private route: ActivatedRoute,
+  private router: Router,
+  private http: HttpClient,
+  private programsService: ProgramsService,
+  private distributionService: DistributionService,
+  private userService: UserService,
+  private organizationService: OrganizationService,
+  private organizationContextService: OrganizationContextService,     
+)  {
+   this.programsForm = this.fb.group({
+  programCode: ['', [Validators.required, Validators.maxLength(20)]],
+  programDate: ['', Validators.required],
+  plannedStartTime: ['', Validators.required],
+  plannedEndTime: ['', Validators.required],
+  actualStartTime: [''],
+  actualEndTime: [''],
+  organizationId: [{ value: '', disabled: true }, Validators.required], // 🔹 Bloqueado
+  routeId: ['', Validators.required],
+  scheduleId: ['', Validators.required],
+  zoneId: ['', Validators.required],      // 👈 Nuevo campo zona
+  streetId: ['', Validators.required],    // 👈 Nuevo campo calle
+  responsibleUserId: ['', Validators.required],
+  status: ['', Validators.required],
+  observations: ['', [
+    Validators.maxLength(300),
+    Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ ]*$/)
+  ]]
     });
   }
 
-  ngOnInit(): void {
-    this.programId = this.route.snapshot.paramMap.get('id');
-    const view = this.route.snapshot.data['viewMode'];
+ngOnInit(): void {
+  const orgId = this.organizationContextService.getCurrentOrganizationId();
 
-    this.minDateTime = this.getTodayDateTime();
-    this.isViewMode = !!view;
-    this.isEditMode = !!this.programId && !view;
+  if (orgId) {
+    this.organizationService.getOrganizationById(orgId).subscribe({
+      next: (org) => {
+        console.log('📌 Organización cargada:', org);
+        this.organizations = [org];
+        this.programsForm.patchValue({ organizationId: org.organizationId });
+        this.programsForm.get('organizationId')?.disable();
 
-    this.loadInitialData();
+        this.selectedOrganization = org;
 
-    if (this.programId) {
-      this.loadProgram();
-    } else {
-      this.generateProgramCode();
-    }
+       // Cargar zonas y calles
+        this.zones = (org as any).zones || [];
+        if (this.zones.length > 0) {
+          this.streets = (this.zones[0] as any).streets || [];
+        }
+
+        // ✅ Aquí llamas para traer rutas y horarios
+        this.loadRoutes(org.organizationId);
+        this.loadSchedules(org.organizationId);
+      },
+      error: (err) => console.error('❌ Error cargando organización:', err)
+    });
+  } else {
+    console.warn('⚠ No hay organizationId en el contexto.');
   }
+}
+
+
+
 
   private getTodayDateTime(): string {
     const now = new Date();
@@ -102,6 +165,8 @@ export class ProgramFormComponent implements OnInit {
     if (field.errors['maxlength']) return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
     return 'Campo inválido';
   }
+
+
 
   isFieldInvalid(fieldName: string): boolean {
     const field = this.programsForm.get(fieldName);
@@ -172,27 +237,29 @@ export class ProgramFormComponent implements OnInit {
     return `${date}T${time}`;
   }
 
-  private prepareFormData(): any {
-    const form = this.programsForm.value;
-    const programDate = this.formatDateOnly(form.programDate);
+private prepareFormData(): any {
+  const form = this.programsForm.getRawValue(); // 🔹 Incluye los disabled
 
-    const base = {
-      programCode: form.programCode,
-      programDate,
-      plannedStartTime: this.formatTimeOnly(form.plannedStartTime),
-      plannedEndTime: this.formatTimeOnly(form.plannedEndTime),
-      actualStartTime: form.actualStartTime ? this.formatTimeOnly(form.actualStartTime) : null,
-      actualEndTime: form.actualEndTime ? this.formatTimeOnly(form.actualEndTime) : null,
-      organizationId: form.organizationId,
-      routeId: form.routeId || null,
-      scheduleId: form.scheduleId || null,
-      responsibleUserId: form.responsibleUserId || null,
-      status: form.status,
-      observations: form.observations
-    };
+  const programDate = this.formatDateOnly(form.programDate);
 
-    return this.isEditMode ? { ...base, id: this.programId! } : base;
-  }
+  const base = {
+    programCode: form.programCode,
+    programDate,
+    plannedStartTime: this.formatTimeOnly(form.plannedStartTime),
+    plannedEndTime: this.formatTimeOnly(form.plannedEndTime),
+    actualStartTime: form.actualStartTime ? this.formatTimeOnly(form.actualStartTime) : null,
+    actualEndTime: form.actualEndTime ? this.formatTimeOnly(form.actualEndTime) : null,
+    organizationId: form.organizationId, // 🔹 Ahora sí lo obtienes
+    routeId: form.routeId || null,
+    scheduleId: form.scheduleId || null,
+    responsibleUserId: form.responsibleUserId || null,
+    status: form.status,
+    observations: form.observations
+  };
+
+  return this.isEditMode ? { ...base, id: this.programId! } : base;
+}
+
 
   private loadProgram(): void {
     this.programsService.getProgramById(this.programId!).subscribe({
@@ -225,24 +292,47 @@ export class ProgramFormComponent implements OnInit {
   }
 
   private loadInitialData(): void {
-    this.organizationService.getAllOrganization().subscribe({
-      next: (orgs) => (this.organizations = orgs),
-      error: (err) => console.error('Error cargando organizaciones:', err)
-    });
+  const orgId = this.organizationContextService.getCurrentOrganizationId();
 
-    this.distributionService.getAllR().subscribe({
-      next: (routes) => (this.routes = routes),
-      error: (err) => console.error('Error cargando rutas:', err)
-    });
-
-    this.distributionService.getAll().subscribe({
-      next: (schedules) => (this.schedules = schedules),
-      error: (err) => console.error('Error cargando horarios:', err)
-    });
-
-    this.userService.getAllUsers().subscribe({
-      next: (res) => (this.responsible = res),
-      error: (err) => console.error('Error cargando responsables:', err)
-    });
+  if (!orgId) {
+    console.warn('⚠ No se encontró un organizationId en el contexto');
+    return;
   }
+
+  this.organizationService.getOrganizationById(orgId).subscribe({
+    next: (org) => {
+      if (!org) {
+        console.warn(`⚠ No se encontró la organización con ID ${orgId}`);
+        return;
+      }
+
+      // Setear organización en el formulario y bloquear
+      this.programsForm.patchValue({ organizationId: org.organizationId });
+      this.programsForm.get('organizationId')?.disable();
+
+      // Cargar zonas y calles
+   this.zones = (org as any).zones || [];
+
+      if (this.zones.length > 0) {
+        this.streets = this.zones[0].streets || [];
+      }
+    },
+    error: (err) => console.error('❌ Error cargando organización:', err)
+  });
+}
+
+
+// 📌 Aquí pegas estos métodos
+onOrganizationChange(orgId: string) {
+  const org = this.organizations.find(o => o.organizationId === orgId);
+  this.zones = (org as any)?.zones || [];
+  this.streets = [];
+  this.programsForm.patchValue({ zoneId: '', streetId: '' });
+}
+
+onZoneChange(zoneId: string) {
+  const zone = this.zones.find(z => z.zoneId === zoneId);
+  this.streets = (this.zones[0] as any)?.streets || [];
+  this.programsForm.patchValue({ streetId: '' });
+}
 }

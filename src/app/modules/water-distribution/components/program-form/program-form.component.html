@@ -70,19 +70,45 @@
               </div>
             </ng-container>
 
-            <!-- Organización -->
-            <div>
-              <label for="organizationId" class="block text-sm font-medium text-gray-700">Organización <span class="text-red-500">*</span></label>
-              <select id="organizationId" formControlName="organizationId"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                [disabled]="isViewMode">
-                <option value="">Seleccionar organización</option>
-                <option *ngFor="let org of organizations" [value]="org.organizationId">
-                  {{ org.organizationName }}
-                </option>
-              </select>
-              <p *ngIf="getFieldError('organizationId')" class="mt-1 text-sm text-red-600">{{ getFieldError('organizationId') }}</p>
-            </div>
+   <!-- Organización (solo lectura) -->
+<div>
+  <label class="block text-sm font-medium text-gray-700">Organización</label>
+  <input type="text"
+         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
+         [value]="selectedOrganization?.organizationName"
+         readonly>
+</div>
+
+<!-- Zona -->
+<div>
+  <label for="zoneId" class="block text-sm font-medium text-gray-700">Zona <span class="text-red-500">*</span></label>
+  <select id="zoneId" formControlName="zoneId"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          [disabled]="isViewMode">
+    <option value="">Seleccionar zona</option>
+    <option *ngFor="let zone of zones" [value]="zone.id">
+      {{ zone.zoneName }}
+    </option>
+  </select>
+  <p *ngIf="getFieldError('zoneId')" class="mt-1 text-sm text-red-600">{{ getFieldError('zoneId') }}</p>
+</div>
+
+<!-- Calle -->
+<div>
+  <label for="streetId" class="block text-sm font-medium text-gray-700">Calle <span class="text-red-500">*</span></label>
+  <select id="streetId" formControlName="streetId"
+          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+          [disabled]="isViewMode || !zones.length">
+    <option value="">Seleccionar calle</option>
+    <option *ngFor="let street of streets" [value]="street.id">
+      {{ street.streetName }}
+    </option>
+  </select>
+  <p *ngIf="getFieldError('streetId')" class="mt-1 text-sm text-red-600">{{ getFieldError('streetId') }}</p>
+</div>
 
             <!-- Ruta -->
             <div>
