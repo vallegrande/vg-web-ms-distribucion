@@ -15,6 +15,7 @@ import { environment } from 'src/environments/environment.production';
 import { zones, street } from '../../../../core/models/organization.model';
 import { OrganizationContextService } from 'app/core/services/organization-context.service';
 import { routes as Route, schedules as Schedule } from '../../../../core/models/distribution.model';
+import { AuthService } from 'app/core/services/auth.service';
 
 @Component({
   selector: 'app-program-form',
@@ -34,12 +35,9 @@ export class ProgramFormComponent implements OnInit {
   schedules: Schedule[] = [];
   responsible: UserResponseDTO[] = [];
   minDateTime: string = '';
-
-  // 🔹 Nuevas propiedades para que compile
   selectedOrganization: any = null; 
   zones: any[] = [];
   streets: any[] = [];
-
 
 loadZonesByOrganization(orgId: string) {
   this.organizationService.getZoneById(orgId).subscribe({
@@ -49,7 +47,6 @@ loadZonesByOrganization(orgId: string) {
     error: (err) => console.error('Error al cargar zonas', err)
   });
 }
-
 
 loadStreetsByZone(zoneId: string) {
   this.organizationService.getStreetById(zoneId).subscribe({
@@ -74,7 +71,16 @@ loadSchedules(organizationId: string) {
   });
 }
 
- constructor(
+loadResponsible(): void {
+  this.userService.getUsersByOrganization().subscribe({
+    next: (users) => {
+      this.responsible = users;
+    },
+    error: (err) => console.error("Error cargando responsables:", err)
+  });
+}
+
+constructor(
   private fb: FormBuilder,
   private route: ActivatedRoute,
   private router: Router,
@@ -83,8 +89,9 @@ loadSchedules(organizationId: string) {
   private distributionService: DistributionService,
   private userService: UserService,
   private organizationService: OrganizationService,
-  private organizationContextService: OrganizationContextService,     
-)  {
+  private organizationContextService: OrganizationContextService,
+  private authService: AuthService 
+) {
    this.programsForm = this.fb.group({
   programCode: ['', [Validators.required, Validators.maxLength(20)]],
   programDate: ['', Validators.required],
@@ -92,11 +99,11 @@ loadSchedules(organizationId: string) {
   plannedEndTime: ['', Validators.required],
   actualStartTime: [''],
   actualEndTime: [''],
-  organizationId: [{ value: '', disabled: true }, Validators.required], // 🔹 Bloqueado
+  organizationId: [{ value: '', disabled: true }, Validators.required],
   routeId: ['', Validators.required],
   scheduleId: ['', Validators.required],
-  zoneId: ['', Validators.required],      // 👈 Nuevo campo zona
-  streetId: ['', Validators.required],    // 👈 Nuevo campo calle
+  zoneId: ['', Validators.required],    
+  streetId: ['', Validators.required],  
   responsibleUserId: ['', Validators.required],
   status: ['', Validators.required],
   observations: ['', [
@@ -116,18 +123,14 @@ ngOnInit(): void {
         this.organizations = [org];
         this.programsForm.patchValue({ organizationId: org.organizationId });
         this.programsForm.get('organizationId')?.disable();
-
         this.selectedOrganization = org;
-
-       // Cargar zonas y calles
         this.zones = (org as any).zones || [];
         if (this.zones.length > 0) {
           this.streets = (this.zones[0] as any).streets || [];
         }
-
-        // ✅ Aquí llamas para traer rutas y horarios
         this.loadRoutes(org.organizationId);
         this.loadSchedules(org.organizationId);
+         this.loadResponsible();
       },
       error: (err) => console.error('❌ Error cargando organización:', err)
     });
@@ -135,9 +138,6 @@ ngOnInit(): void {
     console.warn('⚠ No hay organizationId en el contexto.');
   }
 }
-
-
-
 
   private getTodayDateTime(): string {
     const now = new Date();
@@ -166,51 +166,61 @@ ngOnInit(): void {
     return 'Campo inválido';
   }
 
-
-
   isFieldInvalid(fieldName: string): boolean {
     const field = this.programsForm.get(fieldName);
     return !!(field && field.invalid && (field.touched || field.dirty));
   }
 
   onSubmit(): void {
-    if (this.programsForm.invalid) {
-      this.markFormGroupTouched(this.programsForm);
-      return;
-    }
-
-    this.isSubmitting = true;
-    const formData: DistributionProgram = this.prepareFormData();
-
-    const request = this.isEditMode
-      ? this.programsService.updateProgram(this.programId!, formData)
-      : this.programsService.createProgram(formData);
-
-    request.subscribe({
-      next: () => {
-        Swal.fire({
-          icon: 'success',
-          title: this.isEditMode ? 'Programa actualizado' : 'Programa creado',
-          text: this.isEditMode
-            ? 'El programa de distribución se actualizó correctamente.'
-            : 'El programa de distribución se creó correctamente.',
-          confirmButtonText: 'Aceptar'
-        }).then(() => {
-          this.router.navigate(['/admin/distribution/programs']);
-        });
-      },
-      error: (error) => {
-        this.isSubmitting = false;
-        console.error('❌ Error al guardar programa:', error);
-        Swal.fire({
-          icon: 'error',
-          title: 'Error',
-          text: 'Ocurrió un error al guardar el programa.',
-          confirmButtonText: 'Cerrar'
-        });
-      }
-    });
+  if (this.programsForm.invalid) {
+    this.markFormGroupTouched(this.programsForm);
+    return;
   }
+
+  const orgId = this.authService.getCurrentOrganizationId();
+  if (!orgId) {
+    console.error('❌ No se encontró ID de organización');
+    return;
+  }
+
+  this.isSubmitting = true;
+
+  // Incluimos organizationId en la data enviada
+  const formData: DistributionProgram = {
+    ...this.prepareFormData(),
+    organizationId: orgId
+  };
+
+  const request = this.isEditMode
+    ? this.programsService.updateProgram(this.programId!, formData)
+    : this.programsService.createProgram(formData);
+
+  request.subscribe({
+    next: () => {
+      Swal.fire({
+        icon: 'success',
+        title: this.isEditMode ? 'Programa actualizado' : 'Programa creado',
+        text: this.isEditMode
+          ? 'El programa de distribución se actualizó correctamente.'
+          : 'El programa de distribución se creó correctamente.',
+        confirmButtonText: 'Aceptar'
+      }).then(() => {
+        this.router.navigate(['/admin/distribution/programs']);
+      });
+    },
+    error: (error) => {
+      this.isSubmitting = false;
+      console.error('❌ Error al guardar programa:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Ocurrió un error al guardar el programa.',
+        confirmButtonText: 'Cerrar'
+      });
+    }
+  });
+}
+
 
   goBack(): void {
     this.router.navigate(['/admin/programs']);
@@ -239,9 +249,7 @@ ngOnInit(): void {
 
 private prepareFormData(): any {
   const form = this.programsForm.getRawValue(); // 🔹 Incluye los disabled
-
   const programDate = this.formatDateOnly(form.programDate);
-
   const base = {
     programCode: form.programCode,
     programDate,
@@ -256,10 +264,8 @@ private prepareFormData(): any {
     status: form.status,
     observations: form.observations
   };
-
   return this.isEditMode ? { ...base, id: this.programId! } : base;
 }
-
 
   private loadProgram(): void {
     this.programsService.getProgramById(this.programId!).subscribe({
@@ -280,7 +286,6 @@ private prepareFormData(): any {
           status: program.status,
           observations: program.observations
         });
-
         if (this.isViewMode) {
           this.programsForm.disable();
         }
@@ -293,26 +298,19 @@ private prepareFormData(): any {
 
   private loadInitialData(): void {
   const orgId = this.organizationContextService.getCurrentOrganizationId();
-
   if (!orgId) {
     console.warn('⚠ No se encontró un organizationId en el contexto');
     return;
   }
-
   this.organizationService.getOrganizationById(orgId).subscribe({
     next: (org) => {
       if (!org) {
         console.warn(`⚠ No se encontró la organización con ID ${orgId}`);
         return;
       }
-
-      // Setear organización en el formulario y bloquear
       this.programsForm.patchValue({ organizationId: org.organizationId });
       this.programsForm.get('organizationId')?.disable();
-
-      // Cargar zonas y calles
    this.zones = (org as any).zones || [];
-
       if (this.zones.length > 0) {
         this.streets = this.zones[0].streets || [];
       }
@@ -321,8 +319,6 @@ private prepareFormData(): any {
   });
 }
 
-
-// 📌 Aquí pegas estos métodos
 onOrganizationChange(orgId: string) {
   const org = this.organizations.find(o => o.organizationId === orgId);
   this.zones = (org as any)?.zones || [];
