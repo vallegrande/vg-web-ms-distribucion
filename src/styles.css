@@ -11,7 +11,8 @@ body {
   height: 100vh;
   margin: 0;
   padding: 0;
-  font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
   @apply bg-gray-50 text-gray-900 dark:bg-gray-950 dark:text-gray-100;
   transition: background-color 0.2s ease-in-out, color 0.2s ease-in-out;
   overflow: hidden;
@@ -33,9 +34,37 @@ body {
   --color-text-secondary: rgb(203 213 225); /* slate-300 */
   --color-text-muted: rgb(148 163 184); /* slate-400 */
 
-  /* Colores de borde */
-  --color-border-primary: rgb(51 65 85); /* slate-700 */
-  --color-border-secondary: rgb(71 85 105); /* slate-600 */
+  /* Colores de borde más suaves */
+  --color-border-primary: rgb(71 85 105); /* slate-600 - más claro */
+  --color-border-secondary: rgb(100 116 139); /* slate-500 - aún más claro */
+}
+
+/* Mejoras para formularios y inputs */
+input,
+textarea,
+select {
+  @apply focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+}
+
+/* Bordes más suaves en modo oscuro para inputs */
+.dark input,
+.dark textarea,
+.dark select {
+  border-color: rgb(100 116 139) !important; /* slate-500 */
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: rgb(59 130 246) !important; /* blue-500 */
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Mejoras para modales en modo oscuro */
+.dark .modal-content,
+.dark .bg-white {
+  background-color: rgb(30 41 59) !important; /* slate-800 */
+  border-color: rgb(100 116 139) !important; /* slate-500 */
 }
 
 ::-webkit-scrollbar {
@@ -58,7 +87,7 @@ body {
 
 /* Clases utilitarias para contenido principal en modo oscuro */
 .content-card-dark {
-  @apply dark:bg-slate-800/50 dark:border-slate-700;
+  @apply dark:bg-slate-800/50 dark:border-slate-600;
 }
 
 .content-text-dark {
@@ -71,6 +100,31 @@ body {
 
 .content-heading-dark {
   @apply dark:text-slate-100;
+}
+
+/* Nuevas clases para formularios y elementos de interfaz */
+.form-input-improved {
+  @apply w-full px-4 py-3 border border-gray-300 dark:border-slate-500 rounded-xl
+         bg-white dark:bg-slate-700 text-gray-900 dark:text-gray-100
+         placeholder-gray-500 dark:placeholder-gray-400
+         focus:ring-2 focus:ring-blue-500 focus:border-blue-500
+         dark:focus:border-blue-400 transition-all duration-200;
+}
+
+.modal-improved {
+  @apply bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
+         rounded-2xl shadow-xl dark:shadow-2xl;
+}
+
+.card-improved {
+  @apply bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600
+         rounded-xl shadow-sm dark:shadow-lg;
+}
+
+.button-secondary-improved {
+  @apply border border-gray-300 dark:border-slate-500 text-gray-700 dark:text-gray-300
+         hover:bg-gray-50 dark:hover:bg-slate-700 focus:ring-2 focus:ring-gray-300
+         dark:focus:ring-slate-500;
 }
 
 /* Animaciones personalizadas */
@@ -147,7 +201,8 @@ body {
 
 /* Animación para pulso suave en iconos */
 @keyframes softPulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -184,5 +239,79 @@ body {
   animation: softPulse 2s ease-in-out infinite;
 }
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+/* Fix para bordes oscuros en formularios */
+.dark input[type="text"],
+.dark input[type="email"],
+.dark input[type="password"],
+.dark input[type="number"],
+.dark input[type="url"],
+.dark textarea,
+.dark select {
+  background-color: rgb(51 65 85) !important; /* slate-700 */
+  border: 1px solid rgb(100 116 139) !important; /* slate-500 */
+  color: rgb(248 250 252) !important; /* slate-50 */
+}
+
+.dark input[type="text"]:focus,
+.dark input[type="email"]:focus,
+.dark input[type="password"]:focus,
+.dark input[type="number"]:focus,
+.dark input[type="url"]:focus,
+.dark textarea:focus,
+.dark select:focus {
+  border-color: rgb(59 130 246) !important; /* blue-500 */
+  background-color: rgb(51 65 85) !important; /* slate-700 */
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+}
+
+/* Fix para placeholders */
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: rgb(148 163 184) !important; /* slate-400 */
+}
+
+/* Fix para botones con bordes */
+.dark button[type="button"],
+.dark .btn-secondary {
+  background-color: transparent !important;
+  border: 1px solid rgb(100 116 139) !important; /* slate-500 */
+  color: rgb(203 213 225) !important; /* slate-300 */
+}
+
+.dark button[type="button"]:hover,
+.dark .btn-secondary:hover {
+  background-color: rgb(51 65 85) !important; /* slate-700 */
+  border-color: rgb(148 163 184) !important; /* slate-400 */
+}
+
+/* Fix para modales y cards */
+.dark .modal,
+.dark .card,
+.dark .bg-white {
+  background-color: rgb(30 41 59) !important; /* slate-800 */
+  border: 1px solid rgb(71 85 105) !important; /* slate-600 */
+}
+
+/* Fix para dividers */
+.dark .border-t,
+.dark .border-b,
+.dark .border-l,
+.dark .border-r,
+.dark .border {
+  border-color: rgb(71 85 105) !important; /* slate-600 */
+}
+
+/* Outline para accesibilidad */
+.dark *:focus {
+  outline: 2px solid rgb(59 130 246) !important; /* blue-500 */
+  outline-offset: 2px;
+}
