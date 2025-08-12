@@ -112,32 +112,20 @@ constructor(
   ]]
     });
   }
-
+ 
 ngOnInit(): void {
-  const orgId = this.organizationContextService.getCurrentOrganizationId();
-
-  if (orgId) {
-    this.organizationService.getOrganizationById(orgId).subscribe({
-      next: (org) => {
-        console.log('📌 Organización cargada:', org);
-        this.organizations = [org];
-        this.programsForm.patchValue({ organizationId: org.organizationId });
-        this.programsForm.get('organizationId')?.disable();
-        this.selectedOrganization = org;
-        this.zones = (org as any).zones || [];
-        if (this.zones.length > 0) {
-          this.streets = (this.zones[0] as any).streets || [];
-        }
-        this.loadRoutes(org.organizationId);
-        this.loadSchedules(org.organizationId);
-         this.loadResponsible();
-      },
-      error: (err) => console.error('❌ Error cargando organización:', err)
-    });
+  if (this.programId) {
+    this.loadProgram(); // edición
   } else {
-    console.warn('⚠ No hay organizationId en el contexto.');
+    this.loadInitialData(); // creación
+    this.generateProgramCode();
+    this.programsForm.patchValue({
+      programDate: this.getTodayDateTime()
+    });
   }
 }
+
+
 
   private getTodayDateTime(): string {
     const now = new Date();
@@ -221,7 +209,6 @@ ngOnInit(): void {
   });
 }
 
-
   goBack(): void {
     this.router.navigate(['/admin/programs']);
   }
@@ -296,24 +283,31 @@ private prepareFormData(): any {
     });
   }
 
-  private loadInitialData(): void {
+private loadInitialData(): void {
   const orgId = this.organizationContextService.getCurrentOrganizationId();
   if (!orgId) {
-    console.warn('⚠ No se encontró un organizationId en el contexto');
+    console.warn('⚠ No hay organizationId en el contexto.');
     return;
   }
+
   this.organizationService.getOrganizationById(orgId).subscribe({
     next: (org) => {
-      if (!org) {
-        console.warn(`⚠ No se encontró la organización con ID ${orgId}`);
-        return;
-      }
+      console.log('📌 Organización cargada:', org);
+
+      this.selectedOrganization = org;
+      this.organizations = [org];
+
       this.programsForm.patchValue({ organizationId: org.organizationId });
       this.programsForm.get('organizationId')?.disable();
-   this.zones = (org as any).zones || [];
+
+      this.zones = (org as any).zones || [];
       if (this.zones.length > 0) {
         this.streets = this.zones[0].streets || [];
       }
+
+      this.loadRoutes(org.organizationId);
+      this.loadSchedules(org.organizationId);
+      this.loadResponsible();
     },
     error: (err) => console.error('❌ Error cargando organización:', err)
   });

@@ -3,7 +3,7 @@ export const environment = {
      apiUrl: 'https://lab.vallegrande.edu.pe/jass/ms-user/api/v1',
      complaintsIncidentsApiUrl: 'https://vg-ms-claims-incidents-production.up.railway.app/api/v1',
      organizations: 'https://lab.vallegrande.edu.pe/jass/ms-organization/api/v1/organizations',
-     distribution: 'https://lab.vallegrande.edu.pe/jass/ms-distribution/api/v2',
+     distribution: 'https://didactic-enigma-5gpxv7g4w4x7f446j-8086.app.github.dev/api/v2',
      testingPoint: 'https://lab.vallegrande.edu.pe/jass/ms-water-quality/api/v2/testingpoints',
      dailyRecords: 'https://lab.vallegrande.edu.pe/jass/ms-water-quality/api/v2/dailyrecords',
      zonas: 'https://lab.vallegrande.edu.pe/jass/ms-organization/api/v1/zones',
