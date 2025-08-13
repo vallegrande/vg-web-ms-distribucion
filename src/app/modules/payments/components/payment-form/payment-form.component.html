@@ -108,15 +108,11 @@
       <h3 class="mb-3 text-base font-medium text-gray-900">
         Información Personal
       </h3>
-      <div
-        class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      >
+
+      <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         <!-- Documento -->
         <div>
-          <label
-            for="documentNumber"
-            class="block mb-1 text-sm font-medium text-gray-700"
-          >
+          <label for="documentNumber" class="block mb-1 text-sm font-medium text-gray-700">
             Número Documento *
           </label>
           <input
@@ -124,106 +120,100 @@
             type="text"
             formControlName="documentNumber"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
 
+        <!-- Nombres -->
         <div>
-          <label
-            for="firstName"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Nombres *</label
-          >
+          <label for="firstName" class="block mb-1 text-sm font-medium text-gray-700">
+            Nombres *
+          </label>
           <input
             id="firstName"
             type="text"
             formControlName="firstName"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
 
+        <!-- Apellidos -->
         <div>
-          <label
-            for="lastName"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Apellidos *</label
-          >
+          <label for="lastName" class="block mb-1 text-sm font-medium text-gray-700">
+            Apellidos *
+          </label>
           <input
             id="lastName"
             type="text"
             formControlName="lastName"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
 
+        <!-- Email -->
         <div>
-          <label
-            for="email"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Email *</label
-          >
+          <label for="email" class="block mb-1 text-sm font-medium text-gray-700">
+            Email *
+          </label>
           <input
             id="email"
             type="text"
             formControlName="email"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-            >
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
+          />
         </div>
 
+        <!-- Teléfono -->
         <div>
-          <label
-            for="phone"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Teléfono *</label
-          >
+          <label for="phone" class="block mb-1 text-sm font-medium text-gray-700">
+            Teléfono *
+          </label>
           <input
             id="phone"
             type="text"
             formControlName="phone"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
-      </div>
 
-      <!-- Dirección -->
-      <div
-        formGroupName="address"
-        class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3"
-      >
-        <div>
-          <label
-            for="localityName"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Localidad *</label
-          >
+        <!-- Localidad -->
+        <div formGroupName="address">
+          <label for="localityName" class="block mb-1 text-sm font-medium text-gray-700">
+            Zona *
+          </label>
           <input
             id="localityName"
             type="text"
             formControlName="localityName"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
 
-        <div>
-          <label
-            for="streetName"
-            class="block mb-1 text-sm font-medium text-gray-700"
-            >Calle *</label
-          >
+        <!-- Calle -->
+        <div formGroupName="address">
+          <label for="streetName" class="block mb-1 text-sm font-medium text-gray-700">
+            Calle *
+          </label>
           <input
             id="streetName"
             type="text"
             formControlName="streetName"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md 
+                  focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
-
       </div>
     </div>
 
@@ -242,11 +232,10 @@
           <input
             type="text"
             [value]="organizationName"
-            readonly
             placeholder="Nombre de la organización"
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md bg-gray-100"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
+            readonly
           />
-
           <input
             type="hidden"
             formControlName="organizationId"
@@ -263,21 +252,22 @@
             type="text"
             formControlName="paymentCode"
             readonly
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
           />
         </div>
 
         <!-- Caja de Agua -->
         <div>
           <label for="waterBoxId" class="block mb-1 text-sm font-medium text-gray-700">
-            Caja de Agua
+            N° de Suministro *
           </label>
           <input
             id="waterBoxId"
             type="text"
             formControlName="waterBoxId"
-            placeholder="Nombre de la Caja de Agua"
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="N° de Suministro"
+            readonly
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center bg-gray-100"
           />
         </div>
 
@@ -291,7 +281,8 @@
             formControlName="paymentType"
             class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
           >
-            <option value="AGUA">AGUA</option>
+            <option value="AGUA">Servicio de Agua</option>
+            <option value="REPOSICION">Reposición</option>
           </select>
         </div>
 
@@ -303,9 +294,9 @@
           <select
             id="paymentMethod"
             formControlName="paymentMethod"
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
           >
-            <option value="">Seleccionar método...</option>
+            <option value="">Seleccionar Pago</option>
             <option value="EFECTIVO">Efectivo</option>
             <option value="TRANSFERENCIA">Transferencia</option>
             <option value="TARJETA">Tarjeta</option>
@@ -346,7 +337,7 @@
           <select
             id="paymentStatus"
             formControlName="paymentStatus"
-            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+            class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
           >
             <option value="">Seleccionar estado...</option>
             <option value="PENDIENTE">Pendiente</option>
@@ -387,7 +378,7 @@
             <input
               type="text"
               formControlName="concept"
-              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
             />
           </div>
 
@@ -396,7 +387,7 @@
             ><input
               type="text"
               formControlName="year"
-              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
             />
           </div>
 
@@ -405,7 +396,7 @@
             ><input
               type="text"
               formControlName="month"
-              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+              class="block w-full px-3 py-2 text-sm border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-center"
             />
           </div>
 
@@ -419,7 +410,7 @@
           </div>
 
           <div class="sm:col-span-2">
-            <label class="text-sm font-medium">Descripción</label
+            <label class="text-sm font-medium">Descripción *</label
             ><input
               type="text"
               formControlName="description"
