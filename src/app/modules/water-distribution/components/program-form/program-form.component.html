@@ -86,9 +86,10 @@
   <select id="zoneId" formControlName="zoneId"
           class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
                  focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          [disabled]="isViewMode">
+          [disabled]="isViewMode"
+          (change)="onZoneChange($any($event.target).value)">
     <option value="">Seleccionar zona</option>
-    <option *ngFor="let zone of zones" [value]="zone.id">
+    <option *ngFor="let zone of zones" [value]="zone.zoneId">
       {{ zone.zoneName }}
     </option>
   </select>
@@ -103,7 +104,7 @@
                  focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
           [disabled]="isViewMode || !zones.length">
     <option value="">Seleccionar calle</option>
-    <option *ngFor="let street of streets" [value]="street.id">
+    <option *ngFor="let street of streets" [value]="street.streetId">
       {{ street.streetName }}
     </option>
   </select>
@@ -141,14 +142,13 @@
             <!-- Responsable -->
             <div>
               <label for="responsibleUserId" class="block text-sm font-medium text-gray-700">Responsable <span class="text-red-500">*</span></label>
-              <select id="responsibleUserId" formControlName="responsibleUserId"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                [disabled]="isViewMode">
-                <option value="">Seleccionar responsable</option>
-                <option *ngFor="let res of responsible" [value]="res.id">
-                  {{ res.fullName }}
-                </option>
-              </select>
+              <input type="text"
+                     id="responsibleUserId"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                            focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
+                     [value]="currentUser?.fullName || 'Usuario actual'"
+                     readonly>
+              <input type="hidden" formControlName="responsibleUserId">
               <p *ngIf="getFieldError('responsibleUserId')" class="mt-1 text-sm text-red-600">{{ getFieldError('responsibleUserId') }}</p>
             </div>
 
