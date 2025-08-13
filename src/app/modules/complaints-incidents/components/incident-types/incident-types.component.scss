@@ -16,10 +16,6 @@ input, select, textarea {
 
 // Table styles
 table {
-  th {
-    background-color: #f9fafb;
-  }
-
   tr {
     &:hover {
       background-color: #f9fafb;
@@ -67,4 +63,4 @@ button {
     overflow-x: auto;
     white-space: nowrap;
   }
-} 
+}

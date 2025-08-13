@@ -78,15 +78,11 @@
         </div>
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <p class="text-sm font-semibold text-gray-600">Reportado por:</p>
-          <p class="text-sm text-gray-900 mt-1 font-medium">{{ data.reportedByUserId }}</p>
+          <p class="text-sm text-gray-900 mt-1 font-medium">{{ getUsernameById(data.reportedByUserId) }}</p>
         </div>
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <p class="text-sm font-semibold text-gray-600">Asignado a:</p>
-          <p class="text-sm text-gray-900 mt-1 font-medium">{{ data.assignedToUserId }}</p>
-        </div>
-        <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
-          <p class="text-sm font-semibold text-gray-600">Resuelto por:</p>
-          <p class="text-sm text-gray-900 mt-1 font-medium">{{ data.resolvedByUserId }}</p>
+          <p class="text-sm text-gray-900 mt-1 font-medium">{{ data.assignedToUserId ? getUsernameById(data.assignedToUserId) : '-' }}</p>
         </div>
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <p class="text-sm font-semibold text-gray-600">¿Resuelto?:</p>
@@ -120,7 +116,7 @@
       <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-3">
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <p class="text-sm font-semibold text-gray-600">Resuelto por:</p>
-          <p class="text-sm text-gray-900 mt-1 font-medium">{{ resolutionDetails.resolvedByUserId || '-' }}</p>
+          <p class="text-sm text-gray-900 mt-1 font-medium">{{ resolutionDetails.resolvedByUserId ? getUsernameById(resolutionDetails.resolvedByUserId) : '-' }}</p>
         </div>
         <div class="bg-white p-3 rounded-2xl shadow-md border border-gray-100 transition-all duration-300 hover:shadow-xl">
           <p class="text-sm font-semibold text-gray-600">Fecha de Resolución:</p>
@@ -172,8 +168,8 @@
           </div>
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             <div *ngFor="let material of resolutionDetails.materialsUsed" class="bg-gray-50 p-3 rounded-lg shadow-sm border border-gray-200">
-              <p class="text-xs font-semibold text-gray-500">Producto ID:</p>
-              <p class="text-sm text-gray-800 font-medium">{{ material.productId }}</p>
+              <p class="text-xs font-semibold text-gray-500">Producto:</p>
+              <p class="text-sm text-gray-800 font-medium">{{ getProductNameById(material.productId) }}</p>
               <p class="text-xs font-semibold text-gray-500 mt-1">Cantidad:</p>
               <p class="text-sm text-gray-800 font-medium">{{ material.quantity }} {{ material.unit }}</p>
             </div>

@@ -5,6 +5,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { Incident, IncidentResolution } from '../models/complaints-incidents.models';
 import { IncidentResolutionsService } from '../services/incident-resolutions.service';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { UserService } from '../../../core/services/user.service';
+import { UserResponseDTO } from '../../../core/models/user.model';
+import { InventoryService } from '../../../core/services/inventory.service';
+import { ProductResponse } from '../../../core/models/inventory.model';
 
 interface IncidentDetailsData {
   id?: string;
@@ -41,17 +45,55 @@ interface IncidentDetailsData {
 export class IncidentDetailsModalComponent {
   resolutionDetails: IncidentResolution | null = null;
   isResolutionLoading: boolean = false;
+  clientUsers: UserResponseDTO[] = [];
+  products: ProductResponse[] = [];
 
   constructor(
     public dialogRef: MatDialogRef<IncidentDetailsModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IncidentDetailsData,
-    private resolutionService: IncidentResolutionsService // Inject the service
+    private resolutionService: IncidentResolutionsService, // Inject the service
+    private userService: UserService,
+    private inventoryService: InventoryService
   ) {
     console.log('IncidentDetailsModalComponent opened with data:', this.data);
     console.log('Incident resolved status:', this.data.resolved);
+    this.loadUsers();
+    this.loadProducts();
     if (this.data.resolved) {
       this.loadResolutionDetails();
     }
+  }
+
+  loadUsers(): void {
+    this.userService.getClientUsers().subscribe({
+      next: (users: UserResponseDTO[]) => {
+        this.clientUsers = users;
+      },
+      error: (err: any) => {
+        console.error('Error fetching client users', err);
+      }
+    });
+  }
+
+  loadProducts(): void {
+    this.inventoryService.getProducts().subscribe({
+      next: (products: ProductResponse[]) => {
+        this.products = products;
+      },
+      error: (err: any) => {
+        console.error('Error fetching products', err);
+      }
+    });
+  }
+
+  getUsernameById(id: string): string {
+    const user = this.clientUsers.find(u => u.id === id);
+    return user ? user.fullName : id;
+  }
+
+  getProductNameById(id: string): string {
+    const product = this.products.find(p => p.productId === id);
+    return product ? product.productName : `Producto ID: ${id}`;
   }
 
   getResolutionDate(): Date | null {

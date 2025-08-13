@@ -19,6 +19,13 @@ import { Incident, IncidentType, IncidentResolution } from '../../models/complai
 import { IncidentsService } from '../../services/incidents.service';
 import { IncidentTypesService } from '../../services/incident-types.service';
 import { IncidentResolutionsService } from '../../services/incident-resolutions.service';
+import { UserService } from '../../../../core/services/user.service';
+import { UserResponseDTO } from '../../../../core/models/user.model';
+import { InventoryService } from '../../../../core/services/inventory.service';
+import { ProductResponse } from '../../../../core/models/inventory.model';
+import { OrganizationContextService } from '../../../../core/services/organization-context.service';
+import { OrganizationService } from '../../../../core/services/organization.service';
+import { organization } from '../../../../core/models/organization.model';
 
 @Component({
   selector: 'app-incident-form-modal',
@@ -43,8 +50,13 @@ export class IncidentFormModalComponent implements OnInit {
   incidentForm: FormGroup;
   resolutionForm: FormGroup;
   incidentTypes: IncidentType[] = [];
+  clientUsers: UserResponseDTO[] = [];
+  products: ProductResponse[] = [];
+  organizationDisplayText: string = '';
   isEditing = false;
   isLoadingTypes = true;
+  isLoadingUsers = true;
+  isLoadingProducts = true;
   showResolutionDetails = false;
 
   severityLevels = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -62,6 +74,10 @@ export class IncidentFormModalComponent implements OnInit {
     private incidentsService: IncidentsService,
     private incidentTypesService: IncidentTypesService,
     private resolutionService: IncidentResolutionsService,
+    private userService: UserService,
+    private inventoryService: InventoryService,
+    private organizationContextService: OrganizationContextService,
+    private organizationService: OrganizationService,
     public dialogRef: MatDialogRef<IncidentFormModalComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { incident: Incident | null }
   ) {
@@ -137,6 +153,16 @@ export class IncidentFormModalComponent implements OnInit {
         resolved: incident.resolved || false
       });
 
+      // Cargar información de la organización para mostrar en modo edición
+      if (incident.organizationId) {
+        // Usar texto simple para modo edición
+        const contextInfo = this.organizationContextService.getContextInfo();
+        const userName = contextInfo.userName || 'Usuario';
+        this.organizationDisplayText = `Organización de ${userName}`;
+        // Deshabilitar el campo en modo edición también
+        this.incidentForm.get('organizationId')?.disable();
+      }
+
       // Load resolution details if the incident is marked as resolved
       if (incident.id && incident.resolved) {
         this.resolutionService.getAll().subscribe({
@@ -180,12 +206,19 @@ export class IncidentFormModalComponent implements OnInit {
               // Clear existing materials and add loaded ones
               this.materialsUsed.clear();
               foundResolution.materialsUsed?.forEach((material: { productId: string, quantity: number, unit: string }) => {
-                this.materialsUsed.push(this.fb.group({
+                const materialGroup = this.fb.group({
                   productId: [material.productId, Validators.required],
                   quantity: [material.quantity, [Validators.required, Validators.min(1)]],
                   unit: [material.unit, Validators.required]
-                }));
+                });
+
+                this.materialsUsed.push(materialGroup);
               });
+              
+              // Calcular el costo total después de cargar los materiales
+              setTimeout(() => {
+                this.calculateTotalCost();
+              }, 100); // Pequeño delay para asegurar que los productos están cargados
             } else {
               console.warn('No resolution found for incident:', incident.id);
             }
@@ -198,7 +231,6 @@ export class IncidentFormModalComponent implements OnInit {
 
     } else {
       this.incidentForm.patchValue({
-        organizationId: '',
         reportedByUserId: '',
         zoneId: '',
         incidentCode: 'INC001',
@@ -212,7 +244,10 @@ export class IncidentFormModalComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.setupOrganizationId();
     this.loadIncidentTypes();
+    this.loadClientUsers();
+    this.loadProducts();
 
     this.incidentForm.get('severity')?.valueChanges.subscribe(sev => {
       let hours = 72;
@@ -234,6 +269,36 @@ export class IncidentFormModalComponent implements OnInit {
     });
   }
 
+  setupOrganizationId(): void {
+    console.log('🏢 Configurando Organization ID automáticamente...');
+    
+    const currentOrgId = this.organizationContextService.getCurrentOrganizationId();
+    const contextInfo = this.organizationContextService.getContextInfo();
+    
+    console.log('📋 Información del contexto organizacional:', contextInfo);
+
+    if (currentOrgId) {
+      // Auto-asignar el organizationId del contexto actual
+      this.incidentForm.patchValue({
+        organizationId: currentOrgId
+      });
+      
+      // Hacer el campo readonly para evitar modificaciones
+      this.incidentForm.get('organizationId')?.disable();
+      
+      // Usar un nombre genérico simple basado en el contexto del usuario
+      const userName = contextInfo.userName || 'Usuario';
+      this.organizationDisplayText = `Organización de ${userName}`;
+      
+      console.log('✅ Organization ID asignado automáticamente:', currentOrgId);
+      console.log('📝 Texto de organización generado:', this.organizationDisplayText);
+      console.log('🔒 Campo organizationId deshabilitado para edición');
+    } else {
+      console.warn('⚠️ No se encontró Organization ID en el contexto');
+      this.showErrorAlert('No se pudo determinar la organización. Por favor, inicie sesión nuevamente.');
+    }
+  }
+
   toggleResolutionDetails(): void {
     this.showResolutionDetails = !this.showResolutionDetails;
   }
@@ -243,19 +308,94 @@ export class IncidentFormModalComponent implements OnInit {
   }
 
   newMaterial(): FormGroup {
-    return this.fb.group({
+    const materialGroup = this.fb.group({
       productId: ['', Validators.required],
       quantity: [1, [Validators.required, Validators.min(1)]],
       unit: ['', Validators.required]
     });
+
+    return materialGroup;
   }
 
   addMaterial(): void {
     this.materialsUsed.push(this.newMaterial());
+    // Recalcular costo total después de agregar material
+    this.calculateTotalCost();
   }
 
   removeMaterial(index: number): void {
     this.materialsUsed.removeAt(index);
+    // Recalcular costo total después de remover material
+    this.calculateTotalCost();
+  }
+
+  onProductChange(index: number): void {
+    const materialControl = this.materialsUsed.at(index);
+    const productId = materialControl.get('productId')?.value;
+    
+    if (productId) {
+      const selectedProduct = this.products.find(product => product.productId === productId);
+      if (selectedProduct) {
+        // Actualizar automáticamente la unidad de medida
+        materialControl.get('unit')?.setValue(selectedProduct.unitOfMeasure);
+        console.log('Producto seleccionado:', selectedProduct);
+        
+        // Recalcular el costo total
+        this.calculateTotalCost();
+      }
+    }
+  }
+
+  onQuantityChange(index: number): void {
+    // Recalcular el costo total cuando cambie la cantidad
+    this.calculateTotalCost();
+  }
+
+  calculateTotalCost(): void {
+    let totalCost = 0;
+    
+    this.materialsUsed.controls.forEach((materialControl) => {
+      const productId = materialControl.get('productId')?.value;
+      const quantity = materialControl.get('quantity')?.value || 0;
+      
+      if (productId && quantity > 0) {
+        const selectedProduct = this.products.find(product => product.productId === productId);
+        if (selectedProduct && selectedProduct.unitCost) {
+          const materialCost = selectedProduct.unitCost * quantity;
+          totalCost += materialCost;
+        }
+      }
+    });
+    
+    // Actualizar el campo de costo total en el formulario
+    this.resolutionForm.get('totalCost')?.setValue(totalCost);
+    
+    console.log('Costo total calculado:', totalCost);
+  }
+
+  getProductName(productId: string): string {
+    const product = this.products.find(p => p.productId === productId);
+    return product ? product.productName : productId;
+  }
+
+  getProductCost(productId: string): number {
+    const product = this.products.find(p => p.productId === productId);
+    return product?.unitCost || 0;
+  }
+
+  getMaterialCost(index: number): number {
+    const materialControl = this.materialsUsed.at(index);
+    const productId = materialControl.get('productId')?.value;
+    const quantity = materialControl.get('quantity')?.value || 0;
+    
+    if (productId && quantity > 0) {
+      const selectedProduct = this.products.find(product => product.productId === productId);
+      if (selectedProduct && selectedProduct.unitCost) {
+        return selectedProduct.unitCost * quantity;
+      }
+    }
+    
+    return 0;
   }
 
   private generateNextIncidentCode(): void {
@@ -293,6 +433,92 @@ export class IncidentFormModalComponent implements OnInit {
         console.error('Error cargando tipos de incidencias:', error);
         this.showErrorAlert('Error cargando tipos de incidencias');
         this.isLoadingTypes = false;
+      }
+    });
+  }
+
+  loadClientUsers(): void {
+    this.isLoadingUsers = true;
+    console.log('🔍 Cargando usuarios clientes usando UserService...');
+    this.userService.getClientUsers().subscribe({
+      next: (users: UserResponseDTO[]) => {
+        console.log('✅ Usuarios clientes cargados exitosamente desde UserService:');
+        console.log('📊 Cantidad de usuarios:', users.length);
+        console.log('📋 Lista completa de usuarios:', users);
+        
+        // Log individual de cada usuario para verificar estructura
+        users.forEach((user: UserResponseDTO, index: number) => {
+          console.log(`👤 Usuario ${index + 1}:`, {
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName,
+            firstName: user.firstName,
+            lastName: user.lastName
+          });
+        });
+        
+        // Usar directamente los UserResponseDTO
+        this.clientUsers = users;
+        
+        console.log('🔄 Usuarios asignados directamente:', this.clientUsers);
+        
+        this.isLoadingUsers = false;
+        
+        if (users.length === 0) {
+          console.warn('⚠️ No se encontraron usuarios clientes en la respuesta del UserService');
+        }
+      },
+      error: (error: any) => {
+        console.error('❌ Error cargando usuarios clientes desde UserService:', error);
+        console.error('🔍 Detalles del error:', {
+          message: error.message,
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url
+        });
+        this.showErrorAlert('Error cargando usuarios clientes: ' + (error.message || 'Error desconocido'));
+        this.isLoadingUsers = false;
+      }
+    });
+  }
+
+  loadProducts(): void {
+    this.isLoadingProducts = true;
+    console.log('🔍 Cargando productos del inventario...');
+    this.inventoryService.getProducts().subscribe({
+      next: (products) => {
+        console.log('✅ Productos cargados exitosamente desde InventoryService:');
+        console.log('📊 Cantidad de productos:', products.length);
+        console.log('📋 Lista completa de productos:', products);
+        
+        // Filtrar solo productos activos
+        this.products = products.filter(product => product.status === 'ACTIVO');
+        
+        console.log('🔄 Productos activos asignados:', this.products);
+        
+        this.isLoadingProducts = false;
+        
+        if (this.products.length === 0) {
+          console.warn('⚠️ No se encontraron productos activos en el inventario');
+        } else {
+          // Si ya hay materiales cargados (modo edición), recalcular el costo total
+          setTimeout(() => {
+            if (this.materialsUsed.length > 0) {
+              this.calculateTotalCost();
+            }
+          }, 100);
+        }
+      },
+      error: (error) => {
+        console.error('❌ Error cargando productos desde InventoryService:', error);
+        console.error('🔍 Detalles del error:', {
+          message: error.message,
+          status: error.status,
+          statusText: error.statusText,
+          url: error.url
+        });
+        this.showErrorAlert('Error cargando productos del inventario: ' + (error.message || 'Error desconocido'));
+        this.isLoadingProducts = false;
       }
     });
   }
@@ -369,6 +595,17 @@ export class IncidentFormModalComponent implements OnInit {
 
     const incidentFormValue = this.incidentForm.value;
 
+    // Obtener organizationId del contexto si el campo está deshabilitado
+    const organizationId = this.incidentForm.get('organizationId')?.disabled 
+      ? this.organizationContextService.getCurrentOrganizationId()
+      : incidentFormValue.organizationId;
+
+    // Validar que tenemos organizationId
+    if (!organizationId) {
+      this.showErrorAlert('No se pudo determinar la organización. Por favor, inicie sesión nuevamente.');
+      return;
+    }
+
     // Asegurarse de que la fecha del incidente sea un timestamp válido
     let incidentDateTimestamp;
     if (this.isEditing && this.data.incident?.incidentDate) {
@@ -405,7 +642,7 @@ export class IncidentFormModalComponent implements OnInit {
       description: incidentFormValue.description,
       severity: incidentFormValue.severity,
       status: this.showResolutionDetails && this.resolutionForm.valid ? 'RESOLVED' : incidentFormValue.status,
-      organizationId: incidentFormValue.organizationId,
+      organizationId: organizationId,
       incidentCode: incidentFormValue.incidentCode,
       incidentTypeId: incidentFormValue.incidentTypeId,
       zoneId: incidentFormValue.zoneId || '',
@@ -420,6 +657,7 @@ export class IncidentFormModalComponent implements OnInit {
 
     console.log('showResolutionDetails:', this.showResolutionDetails);
     console.log('resolutionForm.valid:', this.resolutionForm.valid);
+    console.log('organizationId usado:', organizationId);
     console.log('incidentData before submission:', incidentData);
 
     const incidentObservable = this.isEditing && this.data.incident?.id

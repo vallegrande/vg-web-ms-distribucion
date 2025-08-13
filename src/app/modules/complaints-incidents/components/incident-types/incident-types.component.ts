@@ -54,6 +54,16 @@ export class IncidentTypesComponent implements OnInit {
       : this.incidentTypes.filter(t => t.status === 'ACTIVE' || !t.status);
   }
 
+  getPriorityLevelInSpanish(priorityLevel: string): string {
+    const priorityTranslations: { [key: string]: string } = {
+      'CRITICAL': 'CRÍTICA',
+      'HIGH': 'ALTA',
+      'MEDIUM': 'MEDIA',
+      'LOW': 'BAJA'
+    };
+    return priorityTranslations[priorityLevel] || priorityLevel;
+  }
+
   openIncidentTypeForm(incidentType?: IncidentType): void {
     const dialogRef = this.dialog.open(IncidentTypeFormModalComponent, {
       width: '600px',

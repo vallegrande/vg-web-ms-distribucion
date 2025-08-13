@@ -1,16 +1,19 @@
-<div class="container mx-auto p-6 bg-gray-50 min-h-screen">
-  <div class="flex justify-between items-center mb-8">
-    <h1 class="text-3xl font-bold text-gray-800">Gestión de Tipos de Incidencia</h1>
+<div class="container mx-auto p-6 bg-gray-50 dark:bg-slate-950 min-h-screen">
+  
+  <div class="flex justify-between items-center mb-6 bg-white dark:bg-slate-800 p-6 rounded-xl shadow-lg">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-slate-100">Gestión de Tipos de Incidencia</h1>
+      <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Gestiona los tipos de incidencia de tu organización</p>
+    </div>
     <div class="flex items-center space-x-4">
-      <!-- Toggle para mostrar inactivos -->
       <div class="flex items-center">
         <label for="toggle-inactive" class="flex items-center cursor-pointer">
           <div class="relative">
             <input type="checkbox" id="toggle-inactive" class="sr-only" (change)="toggleShowInactive()" [checked]="showInactive">
-            <div class="block bg-gray-300 w-14 h-8 rounded-full"></div>
-            <div class="dot absolute left-1 top-1 bg-white w-6 h-6 rounded-full transition-transform" [class.translate-x-full]="showInactive"></div>
+            <div class="block bg-gray-300 dark:bg-gray-600 w-14 h-8 rounded-full"></div>
+            <div class="dot absolute left-1 top-1 bg-white dark:bg-gray-300 w-6 h-6 rounded-full transition-transform" [class.translate-x-full]="showInactive"></div>
           </div>
-          <div class="ml-3 text-gray-700 font-medium">
+          <div class="ml-3 text-gray-700 dark:text-gray-300 font-medium">
             Mostrar Inactivos
           </div>
         </label>
@@ -24,59 +27,69 @@
     </div>
   </div>
 
-  <!-- Table Section -->
-  <div class="bg-white rounded-xl shadow-lg overflow-hidden">
-    <table class="min-w-full divide-y divide-gray-200">
-      <thead class="bg-gray-50">
+  <div class="flex bg-white dark:bg-slate-800 rounded-xl shadow-md p-4 mb-1 text-xs font-bold text-gray-500 dark:text-slate-300 uppercase tracking-wider">
+      <div class="px-2" style="width: 10%;">Código</div>
+      <div class="px-2" style="width: 15%;">Nombre</div>
+      <div class="px-2" style="width: 10%;">Prioridad</div>
+      <div class="px-2" style="width: 20%;">Tiempo de Resolución</div>
+      <div class="px-2" style="width: 15%;">Servicio Externo</div>
+      <div class="px-2" style="width: 10%;">Estado</div>
+      <div class="px-2 text-center" style="width: 20%;">Acciones</div>
+  </div>
+
+
+  <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg overflow-hidden">
+    <table class="min-w-full">
+      <thead class="sr-only">
         <tr>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Código</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Nombre</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Prioridad</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tiempo de Resolución</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Servicio Externo</th>
-          <th class="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Estado</th>
-          <th class="px-6 py-3 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Acciones</th>
+          <th>Código</th>
+          <th>Nombre</th>
+          <th>Prioridad</th>
+          <th>Tiempo de Resolución</th>
+          <th>Servicio Externo</th>
+          <th>Estado</th>
+          <th class="text-center">Acciones</th>
         </tr>
       </thead>
-      <tbody class="bg-white divide-y divide-gray-200">
-        <tr *ngFor="let type of getIncidentTypesList()" class="hover:bg-gray-50 transition-colors duration-150">
-          <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{type.typeCode}}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{type.typeName}}</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-            <span class="font-semibold"
+      <tbody class="divide-y divide-gray-200 dark:divide-slate-700">
+        <tr *ngFor="let type of getIncidentTypesList()" class="hover:bg-gray-50 dark:hover:bg-slate-700/50 transition-colors duration-150">
+          <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-slate-100" style="width: 10%;">{{type.typeCode}}</td>
+          <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" style="width: 15%;">{{type.typeName}}</td>
+          <td class="px-4 py-4 whitespace-nowrap text-sm" style="width: 10%;">
+            <span class="font-semibold px-3 py-1 rounded-full"
                   [ngClass]="{
-                    'text-red-600': type.priorityLevel === 'CRITICAL',
-                    'text-orange-600': type.priorityLevel === 'HIGH',
-                    'text-yellow-600': type.priorityLevel === 'MEDIUM',
-                    'text-green-600': type.priorityLevel === 'LOW'
+                    'bg-red-500/10 text-red-500': type.priorityLevel === 'CRITICAL',
+                    'bg-orange-500/10 text-orange-500': type.priorityLevel === 'HIGH',
+                    'bg-yellow-500/10 text-yellow-500': type.priorityLevel === 'MEDIUM',
+                    'bg-green-500/10 text-green-500': type.priorityLevel === 'LOW'
                   }">
-              {{type.priorityLevel}}
+              {{getPriorityLevelInSpanish(type.priorityLevel)}}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{{type.estimatedResolutionTime}} horas</td>
-          <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-            <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + 
-                         (type.requiresExternalService ? 'bg-blue-100 text-blue-800' : 'bg-gray-100 text-gray-800')">
+          <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-300" style="width: 20%;">{{type.estimatedResolutionTime}} horas</td>
+          <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-600" style="width: 15%;">
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="type.requiresExternalService ? 'bg-blue-100 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400' : 'bg-gray-100 text-gray-800 dark:bg-slate-600 dark:text-slate-300'">
               {{type.requiresExternalService ? 'Sí' : 'No'}}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap">
-            <span [class]="'px-2 inline-flex text-xs leading-5 font-semibold rounded-full ' + 
-                         (type.status === 'ACTIVE' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800')">
+          <td class="px-4 py-4 whitespace-nowrap" style="width: 10%;">
+            <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full"
+                  [ngClass]="type.status === 'ACTIVE' ? 'bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400' : 'bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400'">
               {{type.status === 'ACTIVE' ? 'Activo' : 'Inactivo'}}
             </span>
           </td>
-          <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2">
-            <button (click)="viewIncidentTypeDetails(type)" class="text-blue-600 hover:text-blue-800 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200">
+          <td class="px-4 py-4 whitespace-nowrap text-center text-sm font-medium space-x-2" style="width: 20%;">
+            <button (click)="viewIncidentTypeDetails(type)" class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-600" title="Ver Detalles">
               <mat-icon>visibility</mat-icon>
             </button>
-            <button (click)="openIncidentTypeForm(type)" class="text-indigo-600 hover:text-indigo-800 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200">
+            <button (click)="openIncidentTypeForm(type)" class="text-indigo-600 hover:text-indigo-800 dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-600" title="Editar">
               <mat-icon>edit</mat-icon>
             </button>
-            <button *ngIf="type.status === 'ACTIVE'" (click)="deleteIncidentType(type.id!)" class="text-red-600 hover:text-red-800 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200">
+            <button *ngIf="type.status === 'ACTIVE'" (click)="deleteIncidentType(type.id!)" class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-600" title="Eliminar">
               <mat-icon>delete</mat-icon>
             </button>
-            <button *ngIf="type.status === 'INACTIVE'" (click)="restoreIncidentType(type.id!)" class="text-green-600 hover:text-green-800 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200">
+            <button *ngIf="type.status === 'INACTIVE'" (click)="restoreIncidentType(type.id!)" class="text-green-600 hover:text-green-800 dark:text-green-400 dark:hover:text-green-300 transition-colors duration-150 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-slate-600" title="Restaurar">
               <mat-icon>restore</mat-icon>
             </button>
           </td>
@@ -84,4 +97,4 @@
       </tbody>
     </table>
   </div>
-</div> 
+</div>
