@@ -3,8 +3,15 @@ import { CommonModule } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { forkJoin } from 'rxjs';
 import { PaymentService } from '../../../../core/services/payment.service';
 import { Payment } from '../../../../core/models/payment.model';
+import { OrganizationService } from '../../../../core/services/organization.service';
+import { UserService } from '../../../../core/services/user.service';
+import { BoxService } from '../../../../core/services/box.service';
+import { organization } from '../../../../core/models/organization.model';
+import { UserResponseDTO } from '../../../../core/models/user.model';
+import { WaterBox } from '../../../../core/models/box.model';
 
 @Component({
   selector: 'app-payment-list',
@@ -20,6 +27,11 @@ export class PaymentListComponent implements OnInit {
   selectedStatus: string = 'todos';
   loading: boolean = false;
 
+  // Maps para almacenar datos de organizaciones, usuarios y cajas de agua
+  organizationsMap: Map<string, string> = new Map();
+  usersMap: Map<string, string> = new Map();
+  waterBoxesMap: Map<string, string> = new Map();
+
   // Pagination properties
   currentPage: number = 1;
   itemsPerPage: number = 5;
@@ -31,11 +43,15 @@ export class PaymentListComponent implements OnInit {
 
   constructor(
     private paymentService: PaymentService,
+    private organizationService: OrganizationService,
+    private userService: UserService,
+    private boxService: BoxService,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.loadPayments();
+    this.loadReferenceData();
   }
 
   loadPayments(): void {
@@ -51,6 +67,34 @@ export class PaymentListComponent implements OnInit {
         console.error('Error loading payments:', error);
         this.showAlertMessage('Error al cargar pagos', 'error');
         this.loading = false;
+      }
+    });
+  }
+
+  loadReferenceData(): void {
+    // Cargar organizaciones, usuarios y cajas de agua en paralelo
+    forkJoin({
+      organizations: this.organizationService.getAllOrganization(),
+      users: this.userService.getAllUsers(),
+      waterBoxes: this.boxService.getAllWaterBoxes()
+    }).subscribe({
+      next: (data) => {
+        // Crear mapas para búsqueda rápida
+        this.organizationsMap = new Map(
+          data.organizations.map(org => [org.organizationId, org.organizationName])
+        );
+
+        this.usersMap = new Map(
+          data.users.map(user => [user.id, user.fullName])
+        );
+
+        this.waterBoxesMap = new Map(
+          data.waterBoxes.map(box => [box.id.toString(), box.boxCode])
+        );
+      },
+      error: (error) => {
+        console.error('Error loading reference data:', error);
+        this.showAlertMessage('Error al cargar datos de referencia', 'error');
       }
     });
   }
@@ -71,7 +115,11 @@ export class PaymentListComponent implements OnInit {
       const matchesSearch = this.searchTerm === '' ||
         payment.organizationId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
         payment.paymentDate.toLocaleDateString().includes(this.searchTerm.toLowerCase()) ||
-        payment.userId.toLowerCase().includes(this.searchTerm.toLowerCase());
+        payment.userId.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        this.getOrganizationName(payment.organizationId).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        this.getUserName(payment.userId).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        this.getWaterBoxName(payment.waterBoxId).toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        payment.paymentCode.toLowerCase().includes(this.searchTerm.toLowerCase());
 
       const status = payment.paymentStatus.toLowerCase();
 
@@ -79,11 +127,9 @@ export class PaymentListComponent implements OnInit {
 
       return matchesSearch && matchesStatus;
     });
-    
-    this.calculateTotalPages();
-  }
 
-  // Pagination methods
+    this.calculateTotalPages();
+  }  // Pagination methods
   calculateTotalPages(): void {
     this.totalPages = Math.ceil(this.filteredPayments.length / this.itemsPerPage);
     if (this.currentPage > this.totalPages && this.totalPages > 0) {
@@ -118,7 +164,7 @@ export class PaymentListComponent implements OnInit {
   getPageNumbers(): number[] {
     const pages: number[] = [];
     const maxVisiblePages = 5;
-    
+
     if (this.totalPages <= maxVisiblePages) {
       for (let i = 1; i <= this.totalPages; i++) {
         pages.push(i);
@@ -126,16 +172,16 @@ export class PaymentListComponent implements OnInit {
     } else {
       let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
       let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
-      
+
       if (endPage - startPage + 1 < maxVisiblePages) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
       }
-      
+
       for (let i = startPage; i <= endPage; i++) {
         pages.push(i);
       }
     }
-    
+
     return pages;
   }
 
@@ -252,5 +298,18 @@ export class PaymentListComponent implements OnInit {
 
   getCanceladoPaymentsCount(): number {
     return this.payments.filter(payment => payment.paymentStatus === 'CANCELADO').length;
+  }
+
+  // Métodos para obtener nombres reales en lugar de IDs
+  getOrganizationName(organizationId: string): string {
+    return this.organizationsMap.get(organizationId) || '--';
+  }
+
+  getUserName(userId: string): string {
+    return this.usersMap.get(userId) || '--';
+  }
+
+  getWaterBoxName(waterBoxId: string): string {
+    return this.waterBoxesMap.get(waterBoxId) || '--';
   }
 }

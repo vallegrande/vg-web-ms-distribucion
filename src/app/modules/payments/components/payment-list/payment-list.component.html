@@ -7,7 +7,7 @@
     }" class="border rounded-md p-4">
       <div class="flex items-center justify-between">
         <div class="flex items-center">
-          <svg  class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <svg class="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd"
               d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414L8.586 12l-2.293 2.293a1 1 0 001.414 1.414L9 13.414l2.293 2.293a1 1 0 001.414-1.414L10.414 12l2.293-2.293z"
               clip-rule="evenodd" />
@@ -19,7 +19,7 @@
           </svg>
           <span class="font-medium">{{ alertMessage }}</span>
         </div>
-        <button  class="text-gray-400 hover:text-gray-600">
+        <button class="text-gray-400 hover:text-gray-600">
           <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
             <path fill-rule="evenodd"
               d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -70,8 +70,7 @@
                 d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
             </svg>
           </div>
-          <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()"
-            placeholder="Buscar pagos ..."
+          <input type="text" [(ngModel)]="searchTerm" (input)="onSearch()" placeholder="Buscar pagos ..."
             class="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" />
         </div>
 
@@ -120,14 +119,12 @@
     </div>
   </div>
 
-  <div *ngIf="loading"
-   class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
+  <div *ngIf="loading" class="bg-white rounded-lg shadow-sm border border-gray-200 p-8 text-center">
     <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
     <p class="mt-2 text-gray-500">Cargando pagos...</p>
   </div>
 
-  <div *ngIf="!loading"
-  class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+  <div *ngIf="!loading" class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
     <div class="overflow-y-auto max-h-[60vh]">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50 sticky top-0">
@@ -168,22 +165,21 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-          <tr *ngFor="let payment of getCurrentPagePayments(); trackBy: trackByPaymentsId"
-           class="hover:bg-gray-50">
+          <tr *ngFor="let payment of getCurrentPagePayments(); trackBy: trackByPaymentsId" class="hover:bg-gray-50">
             <td class="px-6 py-4 whitespace-nowrap">
               <input type="checkbox" class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{payment.organizationId}}
+              {{ getOrganizationName(payment.organizationId) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               {{payment.paymentCode}}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{payment.userId}}
+              {{ getUserName(payment.userId) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-              {{payment.waterBoxId}}
+              {{ getWaterBoxName(payment.waterBoxId) }}
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               {{payment.paymentType}}
@@ -199,7 +195,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
               <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
-                    [ngClass]="getPaymentStatusClass(payment.paymentStatus)">
+                [ngClass]="getPaymentStatusClass(payment.paymentStatus)">
                 {{ getPaymentStatusLabel(payment.paymentStatus) }}
               </span>
             </td>
@@ -210,7 +206,8 @@
                 <button (click)="detailPayment(payment.paymentId)"
                   class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="Detalle">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"/>
+                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M7 6H5m2 3H5m2 3H5m2 3H5m2 3H5m11-1a2 2 0 0 0-2-2h-2a2 2 0 0 0-2 2M7 3h11a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1Zm8 7a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z" />
                   </svg>
                 </button>
 
@@ -249,42 +246,37 @@
       </table>
     </div>
 
-         <!-- Empty State - Solo se muestra cuando no hay pagos -->
-     <div *ngIf="filteredPayments.length === 0" class="text-center py-12">
-       <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-           d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
-         </path>
-       </svg>
-       <h3 class="mt-2 text-sm font-medium text-gray-900">No hay Pagos</h3>
-       <p class="mt-1 text-sm text-gray-500">
-         No se encontraron pagos con los filtros aplicados
-       </p>
-       <div class="mt-6">
-         <button (click)="addNewPayment()"
-           class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-           <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-           </svg>
-           Agregar Pagos
-         </button>
-       </div>
-     </div>
+    <!-- Empty State - Solo se muestra cuando no hay pagos -->
+    <div *ngIf="filteredPayments.length === 0" class="text-center py-12">
+      <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z">
+        </path>
+      </svg>
+      <h3 class="mt-2 text-sm font-medium text-gray-900">No hay Pagos</h3>
+      <p class="mt-1 text-sm text-gray-500">
+        No se encontraron pagos con los filtros aplicados
+      </p>
+      <div class="mt-6">
+        <button (click)="addNewPayment()"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Agregar Pagos
+        </button>
+      </div>
+    </div>
 
     <!-- Pagination -->
-    <div
-      *ngIf="filteredPayments.length > 0"
+    <div *ngIf="filteredPayments.length > 0"
       class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6">
       <div class="flex-1 flex justify-between sm:hidden">
-        <button
-          (click)="goToPreviousPage()"
-          [disabled]="currentPage === 1"
+        <button (click)="goToPreviousPage()" [disabled]="currentPage === 1"
           class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
           Anterior
         </button>
-        <button
-          (click)="goToNextPage()"
-          [disabled]="currentPage === totalPages"
+        <button (click)="goToNextPage()" [disabled]="currentPage === totalPages"
           class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
           Siguiente
         </button>
@@ -301,9 +293,7 @@
         </div>
         <div>
           <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px">
-            <button
-              (click)="goToPreviousPage()"
-              [disabled]="currentPage === 1"
+            <button (click)="goToPreviousPage()" [disabled]="currentPage === 1"
               class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="sr-only">Anterior</span>
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">
@@ -312,19 +302,15 @@
                   clip-rule="evenodd" />
               </svg>
             </button>
-            
-            <button
-              *ngFor="let page of getPageNumbers()"
-              (click)="goToPage(page)"
-              [class]="page === currentPage 
+
+            <button *ngFor="let page of getPageNumbers()" (click)="goToPage(page)"
+              [class]="page === currentPage
                 ? 'relative inline-flex items-center px-4 py-2 border border-blue-500 bg-blue-50 text-sm font-medium text-blue-600 hover:bg-blue-100'
                 : 'relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50'">
               {{ page }}
             </button>
-            
-            <button
-              (click)="goToNextPage()"
-              [disabled]="currentPage === totalPages"
+
+            <button (click)="goToNextPage()" [disabled]="currentPage === totalPages"
               class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed">
               <span class="sr-only">Siguiente</span>
               <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20">

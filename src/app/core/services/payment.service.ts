@@ -24,7 +24,7 @@ export class PaymentService {
 
   private apiUrl = environment
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   private handleError(error: any) {
     console.error('API Error:', error);
@@ -107,9 +107,26 @@ export class PaymentService {
   }
 
   getUserById(userId: string): Observable<any> {
-    return this.http.get<ApiResponse<any>>(`${this.apiUrl.users}/${userId}`).pipe(
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl.apiUrl}/${userId}`).pipe(
       map(response => response.data),
       catchError(this.handleError)
+    );
+  }
+
+  getUserWithOrganization(userId: string): Observable<any> {
+    return this.http.get<ApiResponse<any>>(`${this.apiUrl.apiUrl}/users/${userId}/with-organization`).pipe(
+      tap(response => console.log('Raw User with Organization Response:', response)),
+      map(response => {
+        console.log('User with Organization Response:', response);
+        if (!response.status) {
+          throw new Error('Error fetching user with organization');
+        }
+        return response.data;
+      }),
+      catchError(error => {
+        console.error('Error fetching user with organization:', error);
+        throw new Error('No se pudo cargar el usuario con organización');
+      })
     );
   }
 
