@@ -155,7 +155,6 @@ private loadUsers(): void {
 
 getResponsibleName(responsibleUserId: string): string {
   const name = this.userMap.get(responsibleUserId);
-  console.log('Buscando responsable:', responsibleUserId, '=>', name);
   return name || responsibleUserId;
 }
 
@@ -193,10 +192,14 @@ getResponsibleName(responsibleUserId: string): string {
   }
 
   viewProgramsDetail(id: string): void {
+    console.log('👁️ Navegando a detalles del programa:', id);
+    console.log('🔗 Ruta destino:', `/admin/distribution/programs/view/${id}`);
     this.router.navigate(['/admin/distribution/programs/view', id]);
   }
 
   updatePrograms(id: string): void {
+    console.log('✏️ Navegando a editar programa:', id);
+    console.log('🔗 Ruta destino:', `/admin/distribution/programs/edit/${id}`);
     this.router.navigate(['/admin/distribution/programs/edit', id]);
   }
 

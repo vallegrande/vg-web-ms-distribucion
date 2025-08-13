@@ -9,7 +9,6 @@ export interface fares {
   created_at: string;
 }
 
-
 export interface faresCreate {
   organizationId: string;    
   fareCode: string;         

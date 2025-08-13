@@ -126,6 +126,20 @@ export class DistributionService {
     );
   }
 
+    // MÉTODOS PERSONALIZADOS: Filtrar rutas por organización
+getRoutesByOrganization(organizationId: string): Observable<routes[]> {
+  return this.http
+    .get<ApiResponse<routes[]>>(`${this.apiRoutes}?organizationId=${organizationId}`)
+    .pipe(map(response => response.data));
+}
+
+// MÉTODOS PERSONALIZADOS: Filtrar horarios por organización
+getSchedulesByOrganization(organizationId: string): Observable<schedules[]> {
+  return this.http
+    .get<ApiResponse<schedules[]>>(`${this.apiSchedules}?organizationId=${organizationId}`)
+    .pipe(map(response => response.data));
+}
+
 
   // MÉTODOS DE ROUTES
   getAllR(): Observable<routes[]> {
@@ -158,3 +172,4 @@ export class DistributionService {
   }
 
 }
+
