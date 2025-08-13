@@ -15,6 +15,8 @@ export interface DistributionProgram {
   responsibleUserId: string;
   observations?: string;
   createdAt?: string;
+  zoneId?: string;
+  streetId?: string;
 }
 
 export interface DistributionProgramCreate {
@@ -26,6 +28,8 @@ export interface DistributionProgramCreate {
   plannedEndTime: string;
   responsibleUserId: string;
   observations?: string;
+  zoneId?:  string;
+  streetId?: string;
 }
 
 export interface DistributionProgramUpdate extends DistributionProgramCreate {}
