@@ -14,4 +14,6 @@ export const environment = {
      inventoryApiUrl: 'https://lab.vallegrande.edu.pe/jass/ms-inventory/api/v1/',
      infrastructureApiUrl: 'https://lab.vallegrande.edu.pe/jass/ms-infrastructure/api/v1/',
      reniecApiUrl: 'https://lab.vallegrande.edu.pe/jass/ms-user/api/v1/users/reniec/dni',
+     payments: 'https://lab.vallegrande.edu.pe/jass/ms-payments/api/v1/payments',
+
 };
