@@ -20,6 +20,11 @@ export class PaymentListComponent implements OnInit {
   selectedStatus: string = 'todos';
   loading: boolean = false;
 
+  // Pagination properties
+  currentPage: number = 1;
+  itemsPerPage: number = 5;
+  totalPages: number = 0;
+
   showAlert: boolean = false;
   alertMessage: string = '';
   alertType: 'success' | 'error' | 'info' = 'success';
@@ -39,7 +44,7 @@ export class PaymentListComponent implements OnInit {
       next: (payments) => {
         this.payments = payments;
         this.filteredPayments = [...payments];
-        //this.extractSectors();
+        this.calculateTotalPages();
         this.loading = false;
       },
       error: (error) => {
@@ -51,10 +56,12 @@ export class PaymentListComponent implements OnInit {
   }
 
   onSearch(): void {
+    this.currentPage = 1; // Reset to first page when searching
     this.applyFilters();
   }
 
   onStatusChange(): void {
+    this.currentPage = 1; // Reset to first page when changing status
     this.applyFilters();
   }
 
@@ -72,6 +79,68 @@ export class PaymentListComponent implements OnInit {
 
       return matchesSearch && matchesStatus;
     });
+    
+    this.calculateTotalPages();
+  }
+
+  // Pagination methods
+  calculateTotalPages(): void {
+    this.totalPages = Math.ceil(this.filteredPayments.length / this.itemsPerPage);
+    if (this.currentPage > this.totalPages && this.totalPages > 0) {
+      this.currentPage = this.totalPages;
+    }
+  }
+
+  getCurrentPagePayments(): Payment[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.filteredPayments.slice(startIndex, endIndex);
+  }
+
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+    }
+  }
+
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+    }
+  }
+
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+    
+    if (this.totalPages <= maxVisiblePages) {
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      let startPage = Math.max(1, this.currentPage - Math.floor(maxVisiblePages / 2));
+      let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+      
+      if (endPage - startPage + 1 < maxVisiblePages) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+      
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+    
+    return pages;
+  }
+
+  getEndIndex(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.filteredPayments.length);
   }
 
   addNewPayment(): void {

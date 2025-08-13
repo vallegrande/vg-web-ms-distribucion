@@ -19,11 +19,42 @@ export interface Payment {
   waterBoxId: string;
   paymentType: string;
   paymentMethod: string;
-  totalAmount: string;
+  totalAmount: number;
   paymentDate: Date;
   paymentStatus: string;
   status: Status;
   externalReference: string;
+}
+
+/* Response - PaymentResponse (coincide con backend) */
+export interface PaymentResponse {
+  paymentId: string;
+  organizationId: string;
+  paymentCode: string;
+  userId: string;
+  waterBoxId: string;
+  paymentType: string;
+  paymentMethod: string;
+  totalAmount: number;
+  paymentDate: Date;
+  paymentStatus: string;
+  externalReference: string;
+  createdAt: Date;
+  updatedAt: Date;
+  details: PaymentDetail[];
+}
+
+/* Model - PaymentDetail */
+export interface PaymentDetail {
+  paymentDetailId: string;
+  paymentId: string;
+  concept: string;
+  year: number;
+  month: number;
+  amount: number;
+  description: string;
+  periodStart: Date;
+  periodEnd: Date;
 }
 
 /* Request - PaymentCreate */
@@ -34,28 +65,28 @@ export interface PaymentCreate {
   waterBoxId: string;
   paymentType: string;
   paymentMethod: string;
-  totalAmount: string;
+  totalAmount: number;
   paymentDate: Date;
   paymentStatus: string;
   externalReference: string;
-  details: PaymentDCreate[];
+  details: PaymentDRequest[];
 }
 
-/* Model - PaymentDetail */
-export interface DetailPayments {
-  paymentDetailId: string;
-  paymentId: string;
+/* Request - PaymentDRequest (coincide con backend) */
+export interface PaymentDRequest {
   concept: string;
-  year: string;
-  month: string;
-  amount: string;
+  year: number;
+  month: number;
+  amount: number;
   description: string;
   periodStart: Date;
   periodEnd: Date;
 }
 
-/* Request - PaymentDCreate */
-export interface PaymentDCreate {
+/* Legacy - DetailPayments (mantener para compatibilidad) */
+export interface DetailPayments {
+  paymentDetailId: string;
+  paymentId: string;
   concept: string;
   year: string;
   month: string;
@@ -75,7 +106,7 @@ export interface Receipts {
   receiptNumber: string;
   receiptType: string;
   issueDate: Date;
-  amount: string;
+  amount: number;
   year: string;
   month: string;
   concept: string;
@@ -92,7 +123,7 @@ export interface PaymentUpdate {
   waterBoxId?: string;
   paymentType?: string;
   paymentMethod?: string;
-  totalAmount?: string;
+  totalAmount?: number;
   paymentDate?: Date;
   paymentStatus?: string;
   externalReference?: string;
