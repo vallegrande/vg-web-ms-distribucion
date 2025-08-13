@@ -82,7 +82,7 @@
                     class="flex items-center justify-center w-8 h-8 mr-3 rounded-md bg-sky-600/30 group-hover:bg-sky-600/50">
                     <i class="text-xs fas fa-tint text-sky-200"></i>
                   </div>
-                  <span class="font-medium">Cajas de Agua</span>
+                  <span class="font-medium">Suministros</span>
                 </a>
               </div>
             </div>
@@ -196,7 +196,7 @@
                   </div>
                   <span class="font-medium"> Organizaciones</span>
                 </a>
-                
+
                 <a routerLink="/super-admin/organizations/zonas"
                   routerLinkActive="bg-sky-700 dark:bg-gray-600 shadow-md"
                   class="flex items-center py-2.5 px-4 text-sky-100 dark:text-gray-300 rounded-lg hover:bg-sky-700/70 dark:hover:bg-gray-600/70 transition-all duration-200 group text-sm"
@@ -270,33 +270,64 @@
             <span class="font-medium">Pagos</span>
           </a>
         </li>
-        <li *ngIf="hasRole(RolesUsers.ADMIN)" class="group">
-          <div
-            class="flex items-center px-4 py-3 text-white cursor-pointer rounded-xl hover:bg-sky-800/70 dark:hover:bg-gray-700/70"
-            (click)="toggleDistributionMenu()">
-            <div class="flex items-center justify-center w-10 h-10 mr-3 rounded-lg bg-sky-700/50 dark:bg-gray-600/50">
-              <i class="text-base fas fa-route text-sky-200 dark:text-gray-300"></i>
-            </div>
-            <span class="font-medium">Distribución</span>
-            <i class="ml-auto fas fa-chevron-down text-sky-300 dark:text-gray-300"></i>
-          </div>
+        <li *ngIf="hasRole(RolesUsers.ADMIN)">
+          <div class="relative">
+            <button (click)="toggleDistributionMenu()"
+              class="flex items-center justify-between w-full px-4 py-3 text-white transition-all duration-200 rounded-xl hover:bg-sky-800/70 dark:hover:bg-gray-700/70 group"
+              [class.bg-sky-800]="isDistributionMenuOpen" [class.dark:bg-gray-700]="isDistributionMenuOpen">
+              <div class="flex items-center">
+                <div
+                  class="flex items-center justify-center w-10 h-10 mr-3 transition-colors rounded-lg bg-sky-700/50 dark:bg-gray-600/50 group-hover:bg-sky-600 dark:group-hover:bg-gray-600">
+                  <i class="text-base fas fa-route text-sky-200 dark:text-gray-300"></i>
+                </div>
+                <span class="font-medium">Distribución</span>
+              </div>
+              <i class="text-sm transition-transform duration-200 fas fa-chevron-down"
+                [class.rotate-180]="isDistributionMenuOpen"></i>
+            </button>
 
-          <!-- Submenú -->
-          <ul *ngIf="isDistributionMenuOpen" class="ml-8 mt-2 space-y-2">
-            <li>
-              <a routerLink="/admin/distribution/routes" routerLinkActive="text-sky-400">Rutas</a>
-            </li>
-            <!-- Fares / no se toca -->
-            <li>
-              <a routerLink="/admin/distribution/fares" routerLinkActive="text-sky-400">Tarifas</a>
-            </li>
-            <li>
-              <a routerLink="/admin/distribution/schedule" routerLinkActive="text-sky-400">Horario</a>
-            </li>
-            <li>
-              <a routerLink="/admin/distribution/programs" routerLinkActive="text-sky-400">Programas</a>
-            </li>
-          </ul>
+            <div class="overflow-hidden transition-all duration-300" [class.max-h-0]="!isDistributionMenuOpen"
+              [class.max-h-96]="isDistributionMenuOpen">
+              <div class="mt-2 ml-4 space-y-1">
+                <a routerLink="/admin/distribution/routes" routerLinkActive="bg-sky-700 dark:bg-gray-600 shadow-md"
+                  class="flex items-center py-2.5 px-4 text-sky-100 dark:text-gray-300 rounded-lg hover:bg-sky-700/70 dark:hover:bg-gray-600/70 transition-all duration-200 group text-sm"
+                  (click)="onOptionSelected()">
+                  <div
+                    class="flex items-center justify-center w-8 h-8 mr-3 rounded-md bg-sky-600/30 dark:bg-gray-500/30 group-hover:bg-sky-600/50 dark:group-hover:bg-gray-500/50">
+                    <i class="text-xs fas fa-route text-sky-200 dark:text-gray-400"></i>
+                  </div>
+                  <span class="font-medium">Rutas</span>
+                </a>
+                <a routerLink="/admin/distribution/fares" routerLinkActive="bg-sky-700 dark:bg-gray-600 shadow-md"
+                  class="flex items-center py-2.5 px-4 text-sky-100 dark:text-gray-300 rounded-lg hover:bg-sky-700/70 dark:hover:bg-gray-600/70 transition-all duration-200 group text-sm"
+                  (click)="onOptionSelected()">
+                  <div
+                    class="flex items-center justify-center w-8 h-8 mr-3 rounded-md bg-sky-600/30 dark:bg-gray-500/30 group-hover:bg-sky-600/50 dark:group-hover:bg-gray-500/50">
+                    <i class="text-xs fas fa-dollar-sign text-sky-200 dark:text-gray-400"></i>
+                  </div>
+                  <span class="font-medium">Tarifas</span>
+                </a>
+                <a routerLink="/admin/distribution/schedule" routerLinkActive="bg-sky-700 dark:bg-gray-600 shadow-md"
+                  class="flex items-center py-2.5 px-4 text-sky-100 dark:text-gray-300 rounded-lg hover:bg-sky-700/70 dark:hover:bg-gray-600/70 transition-all duration-200 group text-sm"
+                  (click)="onOptionSelected()">
+                  <div
+                    class="flex items-center justify-center w-8 h-8 mr-3 rounded-md bg-sky-600/30 dark:bg-gray-500/30 group-hover:bg-sky-600/50 dark:group-hover:bg-gray-500/50">
+                    <i class="text-xs fas fa-clock text-sky-200 dark:text-gray-400"></i>
+                  </div>
+                  <span class="font-medium">Horario</span>
+                </a>
+                <a routerLink="/admin/distribution/programs" routerLinkActive="bg-sky-700 dark:bg-gray-600 shadow-md"
+                  class="flex items-center py-2.5 px-4 text-sky-100 dark:text-gray-300 rounded-lg hover:bg-sky-700/70 dark:hover:bg-gray-600/70 transition-all duration-200 group text-sm"
+                  (click)="onOptionSelected()">
+                  <div
+                    class="flex items-center justify-center w-8 h-8 mr-3 rounded-md bg-sky-600/30 dark:bg-gray-500/30 group-hover:bg-sky-600/50 dark:group-hover:bg-gray-500/50">
+                    <i class="text-xs fas fa-calendar-alt text-sky-200 dark:text-gray-400"></i>
+                  </div>
+                  <span class="font-medium">Programas</span>
+                </a>
+              </div>
+            </div>
+          </div>
         </li>
         <li *ngIf="hasRole(RolesUsers.ADMIN)">
           <div class="relative">

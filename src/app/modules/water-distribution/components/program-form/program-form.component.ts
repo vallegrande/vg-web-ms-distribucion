@@ -36,138 +36,138 @@ export class ProgramFormComponent implements OnInit {
   schedules: Schedule[] = [];
   responsible: UserResponseDTO[] = [];
   minDateTime: string = '';
-  selectedOrganization: any = null; 
+  selectedOrganization: any = null;
   zones: any[] = [];
   streets: any[] = [];
   currentUser: any = null;
   error: string | null = null;
 
-loadZonesByOrganization(orgId: string) {
-  console.log('🔄 Cargando zonas para organización:', orgId);
-  this.organizationResolver.getZonesByOrganization(orgId).subscribe({
-    next: (zones) => {
-      this.zones = zones;
-      console.log('📌 Zonas cargadas:', zones);
-    },
-    error: (err) => console.error('Error al cargar zonas', err)
-  });
-}
-
-loadStreetsByZone(zoneId: string) {
-  console.log('🔄 Cargando calles para zona:', zoneId);
-  this.organizationResolver.getStreetsByZone(zoneId).subscribe({
-    next: (streets) => {
-      this.streets = streets;
-      console.log('📌 Calles cargadas:', streets);
-    },
-    error: (err) => console.error('Error al cargar calles', err)
-  });
-}
-
-loadRoutes(organizationId: string) {
-  this.distributionService.getRoutesByOrganization(organizationId).subscribe({
-    next: (data: Route[]) => this.routes = data,
-    error: (err) => console.error("❌ Error cargando rutas:", err)
-  });
-}
-
-loadSchedules(organizationId: string) {
-  this.distributionService.getSchedulesByOrganization(organizationId).subscribe({
-    next: (data: Schedule[]) => this.schedules = data,
-    error: (err) => console.error("❌ Error cargando horarios:", err)
-  });
-}
-
-loadResponsible(): void {
-  this.userService.getUsersByOrganization().subscribe({
-    next: (users) => {
-      this.responsible = users;
-      console.log('👥 Usuarios cargados:', users);
-      console.log('👤 Usuario actual:', this.currentUser);
-      
-      // Si no es modo edición, establecer el usuario actual como responsable por defecto
-      if (!this.isEditMode && this.currentUser) {
-        console.log('✅ Estableciendo usuario actual como responsable:', this.currentUser.id);
-        this.programsForm.patchValue({ responsibleUserId: this.currentUser.id });
-      }
-    },
-    error: (err) => console.error("Error cargando responsables:", err)
-  });
-}
-
-constructor(
-  private fb: FormBuilder,
-  private route: ActivatedRoute,
-  private router: Router,
-  private http: HttpClient,
-  private programsService: ProgramsService,
-  private distributionService: DistributionService,
-  private userService: UserService,
-  private organizationService: OrganizationService,
-  private organizationContextService: OrganizationContextService,
-  private authService: AuthService,
-  private organizationResolver: OrganizationResolverService
-) {
-   this.programsForm = this.fb.group({
-  programCode: ['', [Validators.required, Validators.maxLength(20)]],
-  programDate: ['', Validators.required],
-  plannedStartTime: ['', Validators.required],
-  plannedEndTime: ['', Validators.required],
-  actualStartTime: [''],
-  actualEndTime: [''],
-  organizationId: [{ value: '', disabled: true }, Validators.required],
-  routeId: ['', Validators.required],
-  scheduleId: ['', Validators.required],
-  zoneId: ['', Validators.required],    
-  streetId: ['', Validators.required],  
-  responsibleUserId: ['', Validators.required],
-  status: ['', Validators.required],
-  observations: ['', [
-    Validators.maxLength(300),
-    Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ ]*$/)
-  ]]
+  loadZonesByOrganization(orgId: string) {
+    console.log('🔄 Cargando zonas para organización:', orgId);
+    this.organizationResolver.getZonesByOrganization(orgId).subscribe({
+      next: (zones) => {
+        this.zones = zones;
+        console.log('📌 Zonas cargadas:', zones);
+      },
+      error: (err) => console.error('Error al cargar zonas', err)
     });
   }
- 
-ngOnInit(): void {
-  // Obtener el usuario actual
-  this.currentUser = this.authService.getCurrentUser();
-  console.log('👤 Usuario actual:', this.currentUser);
-  
-  // Detectar el modo basándose en la ruta
-  const url = this.router.url;
-  console.log('🔗 URL actual:', url);
-  
-  if (url.includes('/edit/')) {
-    this.isEditMode = true;
-    this.isViewMode = false;
-    this.programId = this.route.snapshot.paramMap.get('id');
-    console.log('✏️ Modo EDICIÓN detectado, ID:', this.programId);
-  } else if (url.includes('/view/')) {
-    this.isViewMode = true;
-    this.isEditMode = false;
-    this.programId = this.route.snapshot.paramMap.get('id');
-    console.log('👁️ Modo VISTA detectado, ID:', this.programId);
-  } else {
-    // Modo creación
-    this.isEditMode = false;
-    this.isViewMode = false;
-    this.programId = null;
-    console.log('➕ Modo CREACIÓN detectado');
-  }
-  
-  if (this.programId) {
-    console.log('📋 Cargando programa existente...');
-    this.loadProgram(); // edición o vista
-  } else {
-    console.log('🆕 Cargando datos para nuevo programa...');
-    this.loadInitialData(); // creación
-    this.generateProgramCode();
-    this.programsForm.patchValue({
-      programDate: this.getTodayDateTime()
+
+  loadStreetsByZone(zoneId: string) {
+    console.log('🔄 Cargando calles para zona:', zoneId);
+    this.organizationResolver.getStreetsByZone(zoneId).subscribe({
+      next: (streets) => {
+        this.streets = streets;
+        console.log('📌 Calles cargadas:', streets);
+      },
+      error: (err) => console.error('Error al cargar calles', err)
     });
   }
-}
+
+  loadRoutes(organizationId: string) {
+    this.distributionService.getRoutesByOrganization(organizationId).subscribe({
+      next: (data: Route[]) => this.routes = data,
+      error: (err) => console.error("❌ Error cargando rutas:", err)
+    });
+  }
+
+  loadSchedules(organizationId: string) {
+    this.distributionService.getSchedulesByOrganization(organizationId).subscribe({
+      next: (data: Schedule[]) => this.schedules = data,
+      error: (err) => console.error("❌ Error cargando horarios:", err)
+    });
+  }
+
+  loadResponsible(): void {
+    this.userService.getUsersByOrganization().subscribe({
+      next: (users) => {
+        this.responsible = users;
+        console.log('👥 Usuarios cargados:', users);
+        console.log('👤 Usuario actual:', this.currentUser);
+
+        // Si no es modo edición, establecer el usuario actual como responsable por defecto
+        if (!this.isEditMode && this.currentUser) {
+          console.log('✅ Estableciendo usuario actual como responsable:', this.currentUser.id);
+          this.programsForm.patchValue({ responsibleUserId: this.currentUser.id });
+        }
+      },
+      error: (err) => console.error("Error cargando responsables:", err)
+    });
+  }
+
+  constructor(
+    private fb: FormBuilder,
+    private route: ActivatedRoute,
+    private router: Router,
+    private http: HttpClient,
+    private programsService: ProgramsService,
+    private distributionService: DistributionService,
+    private userService: UserService,
+    private organizationService: OrganizationService,
+    private organizationContextService: OrganizationContextService,
+    private authService: AuthService,
+    private organizationResolver: OrganizationResolverService
+  ) {
+    this.programsForm = this.fb.group({
+      programCode: ['', [Validators.required, Validators.maxLength(20)]],
+      programDate: ['', Validators.required],
+      plannedStartTime: ['', Validators.required],
+      plannedEndTime: ['', Validators.required],
+      actualStartTime: [''],
+      actualEndTime: [''],
+      organizationId: [{ value: '', disabled: true }, Validators.required],
+      routeId: ['', Validators.required],
+      scheduleId: ['', Validators.required],
+      zoneId: ['', Validators.required],
+      streetId: ['', Validators.required],
+      responsibleUserId: ['', Validators.required],
+      status: ['', Validators.required],
+      observations: ['', [
+        Validators.maxLength(300),
+        Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ ]*$/)
+      ]]
+    });
+  }
+
+  ngOnInit(): void {
+    // Obtener el usuario actual
+    this.currentUser = this.authService.getCurrentUser();
+    console.log('👤 Usuario actual:', this.currentUser);
+
+    // Detectar el modo basándose en la ruta
+    const url = this.router.url;
+    console.log('🔗 URL actual:', url);
+
+    if (url.includes('/edit/')) {
+      this.isEditMode = true;
+      this.isViewMode = false;
+      this.programId = this.route.snapshot.paramMap.get('id');
+      console.log('✏️ Modo EDICIÓN detectado, ID:', this.programId);
+    } else if (url.includes('/view/')) {
+      this.isViewMode = true;
+      this.isEditMode = false;
+      this.programId = this.route.snapshot.paramMap.get('id');
+      console.log('👁️ Modo VISTA detectado, ID:', this.programId);
+    } else {
+      // Modo creación
+      this.isEditMode = false;
+      this.isViewMode = false;
+      this.programId = null;
+      console.log('➕ Modo CREACIÓN detectado');
+    }
+
+    if (this.programId) {
+      console.log('📋 Cargando programa existente...');
+      this.loadProgram(); // edición o vista
+    } else {
+      console.log('🆕 Cargando datos para nuevo programa...');
+      this.loadInitialData(); // creación
+      this.generateProgramCode();
+      this.programsForm.patchValue({
+        programDate: this.getTodayDateTime()
+      });
+    }
+  }
 
 
 
@@ -204,63 +204,63 @@ ngOnInit(): void {
   }
 
   onSubmit(): void {
-  if (this.programsForm.invalid) {
-    this.markFormGroupTouched(this.programsForm);
-    return;
-  }
-
-  const orgId = this.authService.getCurrentOrganizationId();
-  if (!orgId) {
-    console.error('❌ No se encontró ID de organización');
-    return;
-  }
-
-  this.isSubmitting = true;
-
-  // Preparar los datos del formulario
-  const formData = this.prepareFormData();
-  console.log('📤 Datos del formulario a enviar:', formData);
-
-  // Incluimos organizationId en la data enviada
-  const finalData: DistributionProgram = {
-    ...formData,
-    organizationId: orgId
-  };
-
-  console.log('📤 Datos finales a enviar:', finalData);
-
-  const request = this.isEditMode
-    ? this.programsService.updateProgram(this.programId!, finalData)
-    : this.programsService.createProgram(finalData);
-
-  request.subscribe({
-    next: () => {
-      Swal.fire({
-        icon: 'success',
-        title: this.isEditMode ? 'Programa actualizado' : 'Programa creado',
-        text: this.isEditMode
-          ? 'El programa de distribución se actualizó correctamente.'
-          : 'El programa de distribución se creó correctamente.',
-        confirmButtonText: 'Aceptar'
-      }).then(() => {
-        this.router.navigate(['/admin/distribution/programs']);
-      });
-    },
-    error: (error) => {
-      this.isSubmitting = false;
-      console.error('❌ Error al guardar programa:', error);
-      Swal.fire({
-        icon: 'error',
-        title: 'Error',
-        text: 'Ocurrió un error al guardar el programa.',
-        confirmButtonText: 'Cerrar'
-      });
+    if (this.programsForm.invalid) {
+      this.markFormGroupTouched(this.programsForm);
+      return;
     }
-  });
-}
+
+    const orgId = this.authService.getCurrentOrganizationId();
+    if (!orgId) {
+      console.error('❌ No se encontró ID de organización');
+      return;
+    }
+
+    this.isSubmitting = true;
+
+    // Preparar los datos del formulario
+    const formData = this.prepareFormData();
+    console.log('📤 Datos del formulario a enviar:', formData);
+
+    // Incluimos organizationId en la data enviada
+    const finalData: DistributionProgram = {
+      ...formData,
+      organizationId: orgId
+    };
+
+    console.log('📤 Datos finales a enviar:', finalData);
+
+    const request = this.isEditMode
+      ? this.programsService.updateProgram(this.programId!, finalData)
+      : this.programsService.createProgram(finalData);
+
+    request.subscribe({
+      next: () => {
+        Swal.fire({
+          icon: 'success',
+          title: this.isEditMode ? 'Programa actualizado' : 'Programa creado',
+          text: this.isEditMode
+            ? 'El programa de distribución se actualizó correctamente.'
+            : 'El programa de distribución se creó correctamente.',
+          confirmButtonText: 'Aceptar'
+        }).then(() => {
+          this.router.navigate(['/admin/distribution/programs']);
+        });
+      },
+      error: (error) => {
+        this.isSubmitting = false;
+        console.error('❌ Error al guardar programa:', error);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Ocurrió un error al guardar el programa.',
+          confirmButtonText: 'Cerrar'
+        });
+      }
+    });
+  }
 
   goBack(): void {
-    this.router.navigate(['/admin/programs']);
+    this.router.navigate(['/admin/distribution/programs']);
   }
 
   private markFormGroupTouched(formGroup: FormGroup): void {
@@ -284,35 +284,35 @@ ngOnInit(): void {
     return `${date}T${time}`;
   }
 
-private prepareFormData(): any {
-  const form = this.programsForm.getRawValue(); // 🔹 Incluye los disabled
-  console.log('📋 Valores del formulario:', form);
-  
-  const programDate = this.formatDateOnly(form.programDate);
-  const base = {
-    programCode: form.programCode,
-    programDate,
-    plannedStartTime: this.formatTimeOnly(form.plannedStartTime),
-    plannedEndTime: this.formatTimeOnly(form.plannedEndTime),
-    actualStartTime: form.actualStartTime ? this.formatTimeOnly(form.actualStartTime) : null,
-    actualEndTime: form.actualEndTime ? this.formatTimeOnly(form.actualEndTime) : null,
-    organizationId: form.organizationId,
-    zoneId: form.zoneId || null,
-    streetId: form.streetId || null,
-    routeId: form.routeId || null,
-    scheduleId: form.scheduleId || null,
-    responsibleUserId: form.responsibleUserId || null,
-    status: form.status,
-    observations: form.observations
-  };
-  
-  console.log('📋 Datos base preparados:', base);
-  return this.isEditMode ? { ...base, id: this.programId! } : base;
-}
+  private prepareFormData(): any {
+    const form = this.programsForm.getRawValue(); // 🔹 Incluye los disabled
+    console.log('📋 Valores del formulario:', form);
+
+    const programDate = this.formatDateOnly(form.programDate);
+    const base = {
+      programCode: form.programCode,
+      programDate,
+      plannedStartTime: this.formatTimeOnly(form.plannedStartTime),
+      plannedEndTime: this.formatTimeOnly(form.plannedEndTime),
+      actualStartTime: form.actualStartTime ? this.formatTimeOnly(form.actualStartTime) : null,
+      actualEndTime: form.actualEndTime ? this.formatTimeOnly(form.actualEndTime) : null,
+      organizationId: form.organizationId,
+      zoneId: form.zoneId || null,
+      streetId: form.streetId || null,
+      routeId: form.routeId || null,
+      scheduleId: form.scheduleId || null,
+      responsibleUserId: form.responsibleUserId || null,
+      status: form.status,
+      observations: form.observations
+    };
+
+    console.log('📋 Datos base preparados:', base);
+    return this.isEditMode ? { ...base, id: this.programId! } : base;
+  }
 
   private loadProgram(): void {
     if (!this.programId) return;
-    
+
     this.programsService.getProgramById(this.programId).subscribe({
       next: (program) => {
         const dateOnly = program.programDate;
@@ -321,7 +321,7 @@ private prepareFormData(): any {
         // Cargar datos de la organización, zonas y calles primero
         if (program.organizationId) {
           this.loadInitialData();
-          
+
           // Usar setTimeout para dar tiempo a que se carguen los datos
           setTimeout(() => {
             this.programsForm.patchValue({
@@ -359,57 +359,57 @@ private prepareFormData(): any {
     });
   }
 
-private loadInitialData(): void {
-  const orgId = this.authService.getCurrentOrganizationId();
-  if (!orgId) {
-    console.warn('⚠ No hay organizationId en el contexto.');
-    return;
-  }
-
-  // Evitar cargar datos múltiples veces
-  if (this.selectedOrganization && this.selectedOrganization.organizationId === orgId) {
-    return;
-  }
-
-  console.log('🔄 Cargando datos iniciales para organización:', orgId);
-
-  this.organizationService.getOrganizationById(orgId).subscribe({
-    next: (org) => {
-      console.log('📌 Organización cargada:', org);
-
-      this.selectedOrganization = org;
-      this.organizations = [org];
-
-      this.programsForm.patchValue({ organizationId: org.organizationId });
-      this.programsForm.get('organizationId')?.disable();
-
-      // Cargar zonas de la organización
-      this.loadZonesByOrganization(org.organizationId);
-
-      this.loadRoutes(org.organizationId);
-      this.loadSchedules(org.organizationId);
-      this.loadResponsible();
-    },
-    error: (err) => {
-      console.error('❌ Error cargando organización:', err);
-      this.error = 'Error al cargar la organización';
+  private loadInitialData(): void {
+    const orgId = this.authService.getCurrentOrganizationId();
+    if (!orgId) {
+      console.warn('⚠ No hay organizationId en el contexto.');
+      return;
     }
-  });
-}
 
-onOrganizationChange(orgId: string) {
-  this.loadZonesByOrganization(orgId);
-  this.streets = [];
-  this.programsForm.patchValue({ zoneId: '', streetId: '' });
-}
+    // Evitar cargar datos múltiples veces
+    if (this.selectedOrganization && this.selectedOrganization.organizationId === orgId) {
+      return;
+    }
 
-onZoneChange(zoneId: string | null) {
-  console.log('🔄 Cambio de zona:', zoneId);
-  if (zoneId && zoneId !== '') {
-    this.loadStreetsByZone(zoneId);
-  } else {
-    this.streets = [];
+    console.log('🔄 Cargando datos iniciales para organización:', orgId);
+
+    this.organizationService.getOrganizationById(orgId).subscribe({
+      next: (org) => {
+        console.log('📌 Organización cargada:', org);
+
+        this.selectedOrganization = org;
+        this.organizations = [org];
+
+        this.programsForm.patchValue({ organizationId: org.organizationId });
+        this.programsForm.get('organizationId')?.disable();
+
+        // Cargar zonas de la organización
+        this.loadZonesByOrganization(org.organizationId);
+
+        this.loadRoutes(org.organizationId);
+        this.loadSchedules(org.organizationId);
+        this.loadResponsible();
+      },
+      error: (err) => {
+        console.error('❌ Error cargando organización:', err);
+        this.error = 'Error al cargar la organización';
+      }
+    });
   }
-  this.programsForm.patchValue({ streetId: '' });
-}
+
+  onOrganizationChange(orgId: string) {
+    this.loadZonesByOrganization(orgId);
+    this.streets = [];
+    this.programsForm.patchValue({ zoneId: '', streetId: '' });
+  }
+
+  onZoneChange(zoneId: string | null) {
+    console.log('🔄 Cambio de zona:', zoneId);
+    if (zoneId && zoneId !== '') {
+      this.loadStreetsByZone(zoneId);
+    } else {
+      this.streets = [];
+    }
+    this.programsForm.patchValue({ streetId: '' });
+  }
 }

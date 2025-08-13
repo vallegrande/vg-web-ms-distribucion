@@ -49,25 +49,57 @@ export class SidebarComponent implements OnInit {
     }
   }
 
-
+  // Función helper para cerrar todos los dropdowns
+  private closeAllDropdowns(): void {
+    this.isWaterQualityDropdownOpen = false;
+    this.isOrganizationsDropdownOpen = false;
+    this.isDistributionMenuOpen = false;
+    this.isComplaintsIncidentsDropdownOpen = false;
+    this.isInfrastructureDropdownOpen = false;
+    this.isInventoryDropdownOpen = false;
+  }
 
   toggleDistributionMenu(): void {
-    this.isDistributionMenuOpen = !this.isDistributionMenuOpen;
+    const wasOpen = this.isDistributionMenuOpen;
+    this.closeAllDropdowns();
+    this.isDistributionMenuOpen = !wasOpen;
   }
 
   toggleInfrastructureDropdown(): void {
-    this.isInfrastructureDropdownOpen = !this.isInfrastructureDropdownOpen;
+    const wasOpen = this.isInfrastructureDropdownOpen;
+    this.closeAllDropdowns();
+    this.isInfrastructureDropdownOpen = !wasOpen;
   }
 
   toggleWaterQualityDropdown() {
-    this.isWaterQualityDropdownOpen = !this.isWaterQualityDropdownOpen;
+    const wasOpen = this.isWaterQualityDropdownOpen;
+    this.closeAllDropdowns();
+    this.isWaterQualityDropdownOpen = !wasOpen;
+  }
+
+  toggleOrganizationsDropdown() {
+    const wasOpen = this.isOrganizationsDropdownOpen;
+    this.closeAllDropdowns();
+    this.isOrganizationsDropdownOpen = !wasOpen;
+  }
+
+  toggleComplaintsIncidentsDropdown(): void {
+    const wasOpen = this.isComplaintsIncidentsDropdownOpen;
+    this.closeAllDropdowns();
+    this.isComplaintsIncidentsDropdownOpen = !wasOpen;
+  }
+
+  toggleInventoryDropdown(): void {
+    const wasOpen = this.isInventoryDropdownOpen;
+    this.closeAllDropdowns();
+    this.isInventoryDropdownOpen = !wasOpen;
   }
   closeSidebar() {
     this.isSidebarOpen = false;
     this.toggleSidebarEvent.emit();
   }
   onOptionSelected() {
-    this.isOrganizationsDropdownOpen = false;
+    this.closeAllDropdowns();
     this.optionSelected.emit();
   }
 
@@ -76,6 +108,7 @@ export class SidebarComponent implements OnInit {
     localStorage.setItem('sidebarState', JSON.stringify(this.isSidebarOpen));
     this.toggleSidebarEvent.emit();
   }
+
   logout() {
     this.animationService.showGoodbyeAnimation();
 
@@ -84,18 +117,6 @@ export class SidebarComponent implements OnInit {
       this.authService.logout();
       this.router.navigate(['/auth/login']);
     }, 3000);
-  }
-
-  toggleOrganizationsDropdown() {
-    this.isOrganizationsDropdownOpen = !this.isOrganizationsDropdownOpen;
-  }
-
-  toggleComplaintsIncidentsDropdown(): void {
-    this.isComplaintsIncidentsDropdownOpen = !this.isComplaintsIncidentsDropdownOpen;
-  }
-
-  toggleInventoryDropdown(): void {
-    this.isInventoryDropdownOpen = !this.isInventoryDropdownOpen;
   }
 
   hasRole(role: RolesUsers): boolean {
@@ -164,7 +185,6 @@ export class SidebarComponent implements OnInit {
   }
 
   getDashboardRoute(): string {
-    // Primero verificar el rol activo
     const activeRole = this.authService.getActiveRole();
     if (activeRole) {
       switch (activeRole) {
