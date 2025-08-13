@@ -215,8 +215,10 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     }
 
     if (this.isEditMode) {
-      // En modo edición: bloquear username para no permitir cambios
+      // En modo edición: bloquear username, firstName y lastName para no permitir cambios
       this.clientForm.get('username')?.disable();
+      this.clientForm.get('firstName')?.disable();
+      this.clientForm.get('lastName')?.disable();
 
       // Remover validaciones de password ya que no se editarán
       this.clientForm.removeControl('password');
@@ -234,7 +236,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     // Configurar listener para cambios en DNI (tanto para crear como editar)
     this.clientForm.get('documentNumber')?.valueChanges.pipe(
       takeUntil(this.destroy$),
-      debounceTime(500), // Esperar 500ms después de que el usuario deje de escribir
+      debounceTime(800), // Esperar 800ms después de que el usuario deje de escribir
       distinctUntilChanged()
     ).subscribe(dni => {
       // Solo consultar automáticamente si es DNI válido y el tipo de documento es DNI
@@ -743,7 +745,7 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     const documentType = this.clientForm.get('documentType')?.value;
     if (documentType !== DocumentType.DNI) return;
 
-    // Validar que el DNI tenga el formato correcto
+    // Validar que el DNI tenga el formato correcto (8 dígitos)
     if (!documentNumber || documentNumber.length !== 8 || !/^\d{8}$/.test(documentNumber)) {
       this.reniecDataFound = false;
       return;
@@ -752,6 +754,14 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     // Evitar consultas si ya estamos consultando
     if (this.isConsultingReniec) return;
 
+    // Mostrar notificación de consulta automática
+    this.notificationService.info(
+      'Consultando RENIEC',
+      `Verificando DNI ${documentNumber} automáticamente...`,
+      3000
+    );
+
+    // Consultar en RENIEC (permitir todos los DNIs, el manejo de errores mostrará mensajes apropiados)
     this.consultReniec(documentNumber);
   }
 
@@ -775,20 +785,66 @@ export class ClientFormComponent implements OnInit, OnDestroy {
 
         this.notificationService.success(
           'Datos encontrados',
-          `Se encontraron los datos de ${personalData.fullName} en RENIEC`
+          `Se han cargado los datos de ${personalData.fullName} desde RENIEC`
         );
       },
       error: (error) => {
-        console.error('❌ Error consultando RENIEC:', error);
+        console.error('❌ Error completo consultando RENIEC:', error);
+        console.error('❌ Error status:', error.status);
+        console.error('❌ Error message:', error.message);
+        console.error('❌ Error error:', error.error);
+
         this.isConsultingReniec = false;
         this.reniecDataFound = false;
 
-        // Solo mostrar error si es diferente a "no encontrado"
-        if (!error.message?.includes('No se encontraron datos')) {
-          this.notificationService.warning(
-            'Error en RENIEC',
-            error.message || 'No se pudo consultar los datos de RENIEC'
-          );
+        // Analizar el tipo de error y mostrar mensaje específico
+        let title = 'Error en RENIEC';
+        let message = 'No se pudo consultar los datos de RENIEC';
+
+        // Verificar si hay información del error HTTP
+        if (error.status) {
+          switch (error.status) {
+            case 404:
+              title = 'DNI no encontrado';
+              message = `No se encontraron datos para el DNI ${dni} en RENIEC. Verifique que el número sea correcto.`;
+              break;
+            case 400:
+              title = 'DNI inválido';
+              message = 'El formato del DNI no es válido. Debe contener exactamente 8 dígitos.';
+              break;
+            case 500:
+              title = 'Servicio no disponible';
+              message = 'El servicio de RENIEC no está disponible en este momento. Intente más tarde.';
+              break;
+            case 503:
+              title = 'Servicio temporalmente no disponible';
+              message = 'RENIEC está experimentando problemas temporales. Intente nuevamente en unos minutos.';
+              break;
+            default:
+              title = 'Error de conexión';
+              message = `Error al conectar con RENIEC (Código: ${error.status}). Verifique su conexión a internet.`;
+          }
+        }
+        // Si no hay código de estado, verificar el mensaje del error
+        else if (error.error?.message || error.message) {
+          const errorMessage = error.error?.message || error.message;
+
+          if (errorMessage.includes('No se encontraron datos') || errorMessage.includes('not found')) {
+            title = 'DNI no encontrado';
+            message = `No se encontraron datos para el DNI ${dni} en RENIEC. Verifique que el número sea correcto.`;
+          } else if (errorMessage.includes('Error interno') || errorMessage.includes('Internal Server Error')) {
+            title = 'Servicio no disponible';
+            message = 'El servicio de RENIEC no está disponible en este momento. Intente más tarde.';
+          } else {
+            message = errorMessage;
+          }
+        }
+
+        // Mostrar notificación según el tipo de error
+        if (title.includes('no encontrado') || title.includes('inválido')) {
+          this.notificationService.warning(title, message);
+        } else {
+          this.notificationService.error(title, message);
         }
       }
     });
@@ -801,21 +857,58 @@ export class ClientFormComponent implements OnInit, OnDestroy {
     const documentNumber = this.clientForm.get('documentNumber')?.value;
     const documentType = this.clientForm.get('documentType')?.value;
 
+    // Validar tipo de documento
     if (documentType !== DocumentType.DNI) {
       this.notificationService.warning(
-        'Solo DNI',
-        'La consulta RENIEC solo está disponible para DNI'
+        'Solo DNI permitido',
+        'La consulta RENIEC solo está disponible para documentos tipo DNI'
       );
       return;
     }
 
-    if (!documentNumber || documentNumber.length !== 8 || !/^\d{8}$/.test(documentNumber)) {
+    // Validar que existe número de documento
+    if (!documentNumber) {
       this.notificationService.warning(
-        'DNI inválido',
-        'Ingrese un DNI válido de 8 dígitos'
+        'DNI requerido',
+        'Por favor, ingrese un número de DNI para consultar en RENIEC'
       );
       return;
     }
+
+    // Validar formato del DNI
+    if (documentNumber.length !== 8) {
+      this.notificationService.warning(
+        'DNI incompleto',
+        'El DNI debe tener exactamente 8 dígitos'
+      );
+      return;
+    }
+
+    // Validar que solo contenga números
+    if (!/^\d{8}$/.test(documentNumber)) {
+      this.notificationService.warning(
+        'DNI inválido',
+        'El DNI debe contener solo números (8 dígitos)'
+      );
+      return;
+    }
+
+    // Validar DNIs obviamente inválidos
+    if (documentNumber === '00000000' || documentNumber === '11111111' ||
+      documentNumber === '12345678' || documentNumber === '87654321') {
+      this.notificationService.warning(
+        'DNI no válido',
+        'Por favor, ingrese un DNI real y válido'
+      );
+      return;
+    }
+
+    // Mostrar notificación de consulta en progreso
+    this.notificationService.info(
+      'Consultando RENIEC',
+      `Buscando datos para el DNI ${documentNumber}...`,
+      3000
+    );
 
     this.consultReniec(documentNumber);
   }

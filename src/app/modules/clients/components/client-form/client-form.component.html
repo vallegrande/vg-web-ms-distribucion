@@ -1,22 +1,22 @@
 <div
-     class="min-h-screen bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 sm:p-6 lg:p-8">
+     class="min-h-screen p-4 bg-gradient-to-br from-gray-50 via-white to-gray-100 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 sm:p-6 lg:p-8">
      <div class="max-w-5xl mx-auto">
           <!-- Header profesional -->
           <div
-               class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl rounded-3xl p-6 mb-8">
-               <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+               class="p-6 mb-8 border shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 rounded-3xl">
+               <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                     <div class="flex items-center gap-4">
                          <button (click)="onCancel()"
-                              class="flex items-center justify-center w-12 h-12 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-2xl transition-all duration-200 group">
+                              class="flex items-center justify-center w-12 h-12 transition-all duration-200 bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 rounded-2xl group">
                               <i
-                                   class="text-gray-600 dark:text-gray-300 fas fa-arrow-left transition-transform group-hover:-translate-x-1"></i>
+                                   class="text-gray-600 transition-transform dark:text-gray-300 fas fa-arrow-left group-hover:-translate-x-1"></i>
                          </button>
                          <div>
                               <h1
-                                   class="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                   class="text-3xl font-bold text-transparent bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text">
                                    {{ pageTitle }}
                               </h1>
-                              <p class="text-gray-600 dark:text-gray-400 mt-1">
+                              <p class="mt-1 text-gray-600 dark:text-gray-400">
                                    {{ isEditMode ? 'Actualiza la información del cliente' : 'Crea un nuevo cliente para
                                    tu organización' }}
                               </p>
@@ -24,9 +24,9 @@
                     </div>
                     <div class="flex items-center gap-3">
                          <div
-                              class="px-4 py-2 bg-blue-50 dark:bg-blue-900/30 border border-blue-200 dark:border-blue-800 rounded-xl">
+                              class="px-4 py-2 border border-blue-200 bg-blue-50 dark:bg-blue-900/30 dark:border-blue-800 rounded-xl">
                               <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
-                                   <i class="fas fa-building mr-2"></i>
+                                   <i class="mr-2 fas fa-building"></i>
                                    {{ organizations.length > 0 ? organizations[0].organizationName : 'Cargando...' }}
                               </span>
                          </div>
@@ -36,12 +36,12 @@
 
           <!-- Indicador de carga -->
           <div *ngIf="isLoading"
-               class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl rounded-3xl p-12">
+               class="p-12 border shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 rounded-3xl">
                <div class="flex flex-col items-center justify-center gap-6">
                     <div class="relative">
-                         <div class="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin">
+                         <div class="w-16 h-16 border-4 border-blue-200 rounded-full border-t-blue-600 animate-spin">
                          </div>
-                         <div class="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-600 rounded-full animate-spin"
+                         <div class="absolute inset-0 w-16 h-16 border-4 border-transparent rounded-full border-r-purple-600 animate-spin"
                               style="animation-delay: -0.15s;"></div>
                     </div>
                     <div class="text-center">
@@ -53,13 +53,13 @@
 
           <!-- Formulario principal -->
           <form *ngIf="!isLoading && isFormInitialized" [formGroup]="clientForm" (ngSubmit)="onSubmit()"
-               class="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border border-gray-200/50 dark:border-gray-700/50 shadow-xl rounded-3xl overflow-hidden">
+               class="overflow-hidden border shadow-xl bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl border-gray-200/50 dark:border-gray-700/50 rounded-3xl">
 
                <!-- Mensaje de error general -->
                <div *ngIf="errors.general"
-                    class="p-6 bg-red-50 dark:bg-red-900/20 border-b border-red-200 dark:border-red-800">
+                    class="p-6 border-b border-red-200 bg-red-50 dark:bg-red-900/20 dark:border-red-800">
                     <div class="flex items-center gap-3">
-                         <i class="text-red-600 dark:text-red-400 fas fa-exclamation-triangle text-lg"></i>
+                         <i class="text-lg text-red-600 dark:text-red-400 fas fa-exclamation-triangle"></i>
                          <div>
                               <h4 class="font-semibold text-red-800 dark:text-red-200">Error en el formulario</h4>
                               <p class="text-red-700 dark:text-red-300">{{ errors.general }}</p>
@@ -72,8 +72,8 @@
                     <div class="mb-12">
                          <div class="flex items-center gap-3 mb-8">
                               <div
-                                   class="w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl flex items-center justify-center">
-                                   <i class="text-white fas fa-user text-lg"></i>
+                                   class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 rounded-xl">
+                                   <i class="text-lg text-white fas fa-user"></i>
                               </div>
                               <div>
                                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Información Personal
@@ -82,12 +82,12 @@
                               </div>
                          </div>
 
-                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                               <!-- Tipo de Documento -->
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-id-card text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-id-card"></i>
                                         Tipo de Documento
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -102,7 +102,7 @@
                                         <option value="CARNET_EXTRANJERIA">Carnet de Extranjería</option>
                                    </select>
                                    <p *ngIf="hasError('documentType')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('documentType') }}
                                    </p>
@@ -112,7 +112,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-hashtag text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-hashtag"></i>
                                         Número de Documento
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -132,9 +132,9 @@
                                         <button *ngIf="clientForm.get('documentType')?.value === 'DNI'" type="button"
                                              (click)="consultReniecManually()"
                                              [disabled]="isConsultingReniec || !clientForm.get('documentNumber')?.value"
-                                             class="absolute right-2 top-1/2 -translate-y-1/2 px-3 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white text-xs font-medium rounded-lg transition-colors duration-200 disabled:cursor-not-allowed">
-                                             <i *ngIf="!isConsultingReniec" class="fas fa-search mr-1"></i>
-                                             <i *ngIf="isConsultingReniec" class="fas fa-spinner animate-spin mr-1"></i>
+                                             class="absolute px-3 py-2 text-xs font-medium text-white transition-colors duration-200 -translate-y-1/2 bg-blue-600 rounded-lg right-2 top-1/2 hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed">
+                                             <i *ngIf="!isConsultingReniec" class="mr-1 fas fa-search"></i>
+                                             <i *ngIf="isConsultingReniec" class="mr-1 fas fa-spinner animate-spin"></i>
                                              {{ isConsultingReniec ? 'Consultando...' : 'RENIEC' }}
                                         </button>
                                    </div>
@@ -153,14 +153,14 @@
                                              <span>Datos obtenidos de RENIEC</span>
                                         </div>
                                         <button type="button" (click)="clearReniecData()"
-                                             class="text-xs text-gray-600 dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400 transition-colors">
-                                             <i class="fas fa-times mr-1"></i>
+                                             class="text-xs text-gray-600 transition-colors dark:text-gray-400 hover:text-red-600 dark:hover:text-red-400">
+                                             <i class="mr-1 fas fa-times"></i>
                                              Limpiar
                                         </button>
                                    </div>
 
                                    <p *ngIf="hasError('documentNumber')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('documentNumber') }}
                                    </p>
@@ -169,7 +169,7 @@
                               <!-- Status Badge -->
                               <div class="flex items-end">
                                    <div *ngIf="clientForm.get('documentType')?.value === 'DNI'"
-                                        class="w-full p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl">
+                                        class="w-full p-4 border border-blue-200 bg-blue-50 dark:bg-blue-900/20 dark:border-blue-800 rounded-xl">
                                         <div class="flex items-center gap-2 text-sm text-blue-700 dark:text-blue-300">
                                              <i class="fas fa-info-circle"></i>
                                              <span>Los datos se consultarán automáticamente en RENIEC</span>
@@ -179,31 +179,34 @@
                          </div>
 
                          <!-- Nombres y Apellidos -->
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
+                         <div class="grid grid-cols-1 gap-8 mt-8 md:grid-cols-2">
                               <!-- Nombres -->
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-user text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-user"></i>
                                         Nombres
                                         <span class="text-red-500">*</span>
-                                        <span *ngIf="clientForm.get('firstName')?.disabled"
-                                             class="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs rounded-md">
-                                             <i class="fas fa-lock mr-1"></i>
-                                             RENIEC
+                                        <span *ngIf="isEditMode || clientForm.get('firstName')?.disabled"
+                                             class="px-2 py-1 ml-2 text-xs border rounded-md text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
+                                             <i class="mr-1 fas fa-shield-alt"></i>
+                                             {{ isEditMode ? 'PROTEGIDO' : 'AUTO' }}
                                         </span>
                                    </label>
-                                   <input type="text" formControlName="firstName"
+                                   <input type="text" formControlName="firstName" [disabled]="isEditMode"
                                         [class.border-red-300]="hasError('firstName')"
                                         [class.focus:ring-red-500]="hasError('firstName')"
                                         [class.border-green-300]="!hasError('firstName') && clientForm.get('firstName')?.valid && clientForm.get('firstName')?.value"
                                         [class.focus:ring-green-500]="!hasError('firstName') && clientForm.get('firstName')?.valid && clientForm.get('firstName')?.value"
-                                        [class.bg-gray-50]="clientForm.get('firstName')?.disabled"
-                                        [class.dark:bg-gray-600]="clientForm.get('firstName')?.disabled"
+                                        [class.bg-slate-50]="isEditMode || (clientForm.get('firstName')?.disabled || false)"
+                                        [class.dark:bg-slate-700\50]="isEditMode || (clientForm.get('firstName')?.disabled || false)"
+                                        [class.text-slate-600]="isEditMode || (clientForm.get('firstName')?.disabled || false)"
+                                        [class.dark:text-slate-300]="isEditMode || (clientForm.get('firstName')?.disabled || false)"
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed"
-                                        placeholder="Ingrese los nombres">
+                                        [placeholder]="isEditMode ? 'Campo protegido' : 'Se rellenará desde RENIEC'">
+
                                    <p *ngIf="hasError('firstName')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('firstName') }}
                                    </p>
@@ -213,26 +216,29 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-user-tag text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-user-tag"></i>
                                         Apellidos
                                         <span class="text-red-500">*</span>
-                                        <span *ngIf="clientForm.get('lastName')?.disabled"
-                                             class="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs rounded-md">
-                                             <i class="fas fa-lock mr-1"></i>
-                                             RENIEC
+                                        <span *ngIf="isEditMode || clientForm.get('lastName')?.disabled"
+                                             class="px-2 py-1 ml-2 text-xs border rounded-md text-emerald-700 bg-emerald-50 dark:bg-emerald-900/20 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800">
+                                             <i class="mr-1 fas fa-shield-alt"></i>
+                                             {{ isEditMode ? 'PROTEGIDO' : 'AUTO' }}
                                         </span>
                                    </label>
-                                   <input type="text" formControlName="lastName"
+                                   <input type="text" formControlName="lastName" [disabled]="isEditMode"
                                         [class.border-red-300]="hasError('lastName')"
                                         [class.focus:ring-red-500]="hasError('lastName')"
                                         [class.border-green-300]="!hasError('lastName') && clientForm.get('lastName')?.valid && clientForm.get('lastName')?.value"
                                         [class.focus:ring-green-500]="!hasError('lastName') && clientForm.get('lastName')?.valid && clientForm.get('lastName')?.value"
-                                        [class.bg-gray-50]="clientForm.get('lastName')?.disabled"
-                                        [class.dark:bg-gray-600]="clientForm.get('lastName')?.disabled"
+                                        [class.bg-slate-50]="isEditMode || (clientForm.get('lastName')?.disabled || false)"
+                                        [class.dark:bg-slate-700\50]="isEditMode || (clientForm.get('lastName')?.disabled || false)"
+                                        [class.text-slate-600]="isEditMode || (clientForm.get('lastName')?.disabled || false)"
+                                        [class.dark:text-slate-300]="isEditMode || (clientForm.get('lastName')?.disabled || false)"
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed"
-                                        placeholder="Ingrese los apellidos">
+                                        [placeholder]="isEditMode ? 'Campo protegido' : 'Se rellenará desde RENIEC'">
+
                                    <p *ngIf="hasError('lastName')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('lastName') }}
                                    </p>
@@ -244,8 +250,8 @@
                     <div class="mb-12">
                          <div class="flex items-center gap-3 mb-8">
                               <div
-                                   class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-xl flex items-center justify-center">
-                                   <i class="text-white fas fa-envelope text-lg"></i>
+                                   class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-xl">
+                                   <i class="text-lg text-white fas fa-envelope"></i>
                               </div>
                               <div>
                                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Información de
@@ -255,12 +261,12 @@
                               </div>
                          </div>
 
-                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2">
                               <!-- Email -->
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-at text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-at"></i>
                                         Correo Electrónico
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -272,7 +278,7 @@
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         placeholder="ejemplo@correo.com">
                                    <p *ngIf="hasError('email')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('email') }}
                                    </p>
@@ -282,7 +288,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-phone text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-phone"></i>
                                         Teléfono
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -294,12 +300,12 @@
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         placeholder="987654321">
                                    <div *ngIf="!hasError('phone')"
-                                        class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                         <i class="fas fa-info-circle"></i>
                                         <span>Debe empezar con 9 y tener 9 dígitos</span>
                                    </div>
                                    <p *ngIf="hasError('phone')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('phone') }}
                                    </p>
@@ -311,8 +317,8 @@
                     <div class="mb-12">
                          <div class="flex items-center gap-3 mb-8">
                               <div
-                                   class="w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl flex items-center justify-center">
-                                   <i class="text-white fas fa-map-marker-alt text-lg"></i>
+                                   class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-purple-500 to-purple-600 rounded-xl">
+                                   <i class="text-lg text-white fas fa-map-marker-alt"></i>
                               </div>
                               <div>
                                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Información de
@@ -323,12 +329,12 @@
                               </div>
                          </div>
 
-                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                         <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
                               <!-- Dirección -->
-                              <div class="lg:col-span-3 space-y-2">
+                              <div class="space-y-2 lg:col-span-3">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-map text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-map"></i>
                                         Dirección Completa
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -340,7 +346,7 @@
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                         placeholder="Jr. Los Álamos 123, Mz. A Lote 15">
                                    <p *ngIf="hasError('streetAddress')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('streetAddress') }}
                                    </p>
@@ -350,7 +356,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-layer-group text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-layer-group"></i>
                                         Zona
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -367,7 +373,7 @@
                                         </option>
                                    </select>
                                    <p *ngIf="hasError('zoneId')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('zoneId') }}
                                    </p>
@@ -377,7 +383,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-road text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-road"></i>
                                         Calle
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -394,7 +400,7 @@
                                              street.streetName }}</option>
                                    </select>
                                    <p *ngIf="hasError('streetId')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('streetId') }}
                                    </p>
@@ -406,8 +412,8 @@
                     <div *ngIf="!isEditMode" class="mb-12">
                          <div class="flex items-center gap-3 mb-8">
                               <div
-                                   class="w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl flex items-center justify-center">
-                                   <i class="text-white fas fa-key text-lg"></i>
+                                   class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-amber-500 to-amber-600 rounded-xl">
+                                   <i class="text-lg text-white fas fa-key"></i>
                               </div>
                               <div>
                                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Credenciales de Acceso
@@ -417,36 +423,39 @@
                               </div>
                          </div>
 
-                         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                         <div class="grid grid-cols-1 gap-8 lg:grid-cols-3">
                               <!-- Username -->
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-user-circle text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-user-circle"></i>
                                         Nombre de Usuario
                                         <span class="text-red-500">*</span>
                                         <span *ngIf="clientForm.get('username')?.disabled"
-                                             class="ml-2 px-2 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 text-xs rounded-md">
-                                             <i class="fas fa-lock mr-1"></i>
+                                             class="px-2 py-1 ml-2 text-xs text-indigo-700 border border-indigo-200 rounded-md bg-indigo-50 dark:bg-indigo-900/20 dark:text-indigo-300 dark:border-indigo-800">
+                                             <i class="mr-1 fas fa-magic"></i>
                                              AUTO
                                         </span>
                                    </label>
                                    <input type="text" formControlName="username"
+                                        [disabled]="clientForm.get('username')?.disabled || false"
                                         [class.border-red-300]="hasError('username')"
                                         [class.focus:ring-red-500]="hasError('username')"
                                         [class.border-green-300]="!hasError('username') && clientForm.get('username')?.valid && clientForm.get('username')?.value"
                                         [class.focus:ring-green-500]="!hasError('username') && clientForm.get('username')?.valid && clientForm.get('username')?.value"
-                                        [class.bg-gray-50]="clientForm.get('username')?.disabled"
-                                        [class.dark:bg-gray-600]="clientForm.get('username')?.disabled"
+                                        [class.bg-slate-50]="clientForm.get('username')?.disabled || false"
+                                        [class.dark:bg-slate-700\50]="clientForm.get('username')?.disabled || false"
+                                        [class.text-slate-600]="clientForm.get('username')?.disabled || false"
+                                        [class.dark:text-slate-300]="clientForm.get('username')?.disabled || false"
                                         class="w-full px-4 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:cursor-not-allowed"
-                                        placeholder="usuario123">
+                                        placeholder="Se generará automáticamente">
                                    <div *ngIf="!hasError('username') && !clientForm.get('username')?.disabled"
-                                        class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                         <i class="fas fa-info-circle"></i>
                                         <span>Entre 3 y 20 caracteres</span>
                                    </div>
                                    <p *ngIf="hasError('username')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('username') }}
                                    </p>
@@ -456,7 +465,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-lock text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-lock"></i>
                                         Contraseña
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -471,7 +480,7 @@
 
                                         <!-- Botón para mostrar/ocultar contraseña -->
                                         <button type="button" (click)="togglePasswordVisibility()"
-                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                             class="absolute text-gray-400 transition-colors -translate-y-1/2 right-3 top-1/2 hover:text-gray-600 dark:hover:text-gray-300">
                                              <i class="fas" [class.fa-eye]="!showPassword"
                                                   [class.fa-eye-slash]="showPassword"></i>
                                         </button>
@@ -489,7 +498,7 @@
                                              </span>
                                         </div>
                                         <div
-                                             class="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full overflow-hidden">
+                                             class="w-full h-2 overflow-hidden bg-gray-200 rounded-full dark:bg-gray-700">
                                              <div class="h-full transition-all duration-300 rounded-full"
                                                   [class]="passwordStrengthClass"
                                                   [style.width.%]="(passwordCriteriaCount / 5) * 100">
@@ -531,7 +540,7 @@
                                                        *ngIf="!passwordStrength.hasSpecial"></i>
                                                   <span>Símbolo</span>
                                              </div>
-                                             <div class="flex items-center gap-2 col-span-2"
+                                             <div class="flex items-center col-span-2 gap-2"
                                                   [class.text-green-600]="passwordStrength.isValidLength"
                                                   [class.text-gray-500]="!passwordStrength.isValidLength">
                                                   <i class="fas fa-check-circle"
@@ -544,7 +553,7 @@
                                    </div>
 
                                    <p *ngIf="hasError('password')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('password') }}
                                    </p>
@@ -554,7 +563,7 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-shield-alt text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-shield-alt"></i>
                                         Confirmar Contraseña
                                         <span class="text-red-500">*</span>
                                    </label>
@@ -570,13 +579,13 @@
 
                                         <!-- Botón para mostrar/ocultar confirmar contraseña -->
                                         <button type="button" (click)="toggleConfirmPasswordVisibility()"
-                                             class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+                                             class="absolute text-gray-400 transition-colors -translate-y-1/2 right-3 top-1/2 hover:text-gray-600 dark:hover:text-gray-300">
                                              <i class="fas" [class.fa-eye]="!showConfirmPassword"
                                                   [class.fa-eye-slash]="showConfirmPassword"></i>
                                         </button>
                                    </div>
                                    <p *ngIf="hasError('confirmPassword') || clientForm.errors?.['passwordMismatch']"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('confirmPassword') }}
                                    </p>
@@ -588,8 +597,8 @@
                     <div *ngIf="isEditMode" class="mb-12">
                          <div class="flex items-center gap-3 mb-8">
                               <div
-                                   class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl flex items-center justify-center">
-                                   <i class="text-white fas fa-user-cog text-lg"></i>
+                                   class="flex items-center justify-center w-10 h-10 bg-gradient-to-r from-indigo-500 to-indigo-600 rounded-xl">
+                                   <i class="text-lg text-white fas fa-user-cog"></i>
                               </div>
                               <div>
                                    <h2 class="text-xl font-bold text-gray-900 dark:text-gray-100">Credenciales</h2>
@@ -602,26 +611,28 @@
                               <div class="space-y-2">
                                    <label
                                         class="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                        <i class="fas fa-user-circle text-gray-400"></i>
+                                        <i class="text-gray-400 fas fa-user-circle"></i>
                                         Nombre de Usuario
                                         <span class="text-red-500">*</span>
                                         <span
-                                             class="ml-2 px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-400 text-xs rounded-md">
-                                             <i class="fas fa-lock mr-1"></i>
+                                             class="px-2 py-1 ml-2 text-xs border rounded-md text-slate-700 bg-slate-100 dark:bg-slate-700/50 dark:text-slate-300 border-slate-200 dark:border-slate-600">
+                                             <i class="mr-1 fas fa-lock"></i>
                                              NO EDITABLE
                                         </span>
                                    </label>
                                    <input type="text" formControlName="username"
-                                        [class.bg-gray-50]="clientForm.get('username')?.disabled"
-                                        [class.dark:bg-gray-600]="clientForm.get('username')?.disabled"
-                                        class="w-full px-4 py-3.5 bg-gray-50 dark:bg-gray-600 border border-gray-300 dark:border-gray-600 rounded-xl text-gray-700 dark:text-gray-300 placeholder-gray-500 dark:placeholder-gray-400 cursor-not-allowed"
-                                        placeholder="usuario123" readonly>
-                                   <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                                        [class.bg-slate-50]="clientForm.get('username')?.disabled"
+                                        [class.dark:bg-slate-700]="clientForm.get('username')?.disabled"
+                                        [class.text-slate-600]="clientForm.get('username')?.disabled"
+                                        [class.dark:text-slate-300]="clientForm.get('username')?.disabled"
+                                        class="w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-700/50 border border-slate-300 dark:border-slate-600 rounded-xl text-slate-600 dark:text-slate-300 placeholder-slate-500 dark:placeholder-slate-400 cursor-not-allowed"
+                                        placeholder="Campo protegido" readonly />
+                                   <div class="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
                                         <i class="fas fa-info-circle"></i>
                                         <span>El nombre de usuario no puede modificarse</span>
                                    </div>
                                    <p *ngIf="hasError('username')"
-                                        class="text-sm text-red-600 dark:text-red-400 flex items-center gap-1">
+                                        class="flex items-center gap-1 text-sm text-red-600 dark:text-red-400">
                                         <i class="fas fa-exclamation-circle"></i>
                                         {{ getErrorMessage('username') }}
                                    </p>
@@ -631,11 +642,11 @@
                </div>
 
                <!-- Botones de acción -->
-               <div class="px-8 py-6 bg-gray-50 dark:bg-gray-800/50 border-t border-gray-200 dark:border-gray-700">
-                    <div class="flex flex-col sm:flex-row gap-4 sm:justify-end">
+               <div class="px-8 py-6 border-t border-gray-200 bg-gray-50 dark:bg-gray-800/50 dark:border-gray-700">
+                    <div class="flex flex-col gap-4 sm:flex-row sm:justify-end">
                          <button type="button" (click)="onCancel()" [disabled]="isSaving"
                               class="px-6 py-3.5 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium rounded-xl hover:bg-gray-50 dark:hover:bg-gray-600 focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed">
-                              <i class="fas fa-times mr-2"></i>
+                              <i class="mr-2 fas fa-times"></i>
                               Cancelar
                          </button>
 
