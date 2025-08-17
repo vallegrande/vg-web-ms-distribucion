@@ -35,7 +35,7 @@ export class ProgramFormComponent implements OnInit {
   routes: Route[] = [];
   schedules: Schedule[] = [];
   responsible: UserResponseDTO[] = [];
-  minDateTime: string = '';
+  minDate: string = '';
   selectedOrganization: any = null;
   zones: any[] = [];
   streets: any[] = [];
@@ -73,8 +73,26 @@ export class ProgramFormComponent implements OnInit {
 
   loadSchedules(organizationId: string) {
     this.distributionService.getSchedulesByOrganization(organizationId).subscribe({
-      next: (data: Schedule[]) => this.schedules = data,
-      error: (err) => console.error("❌ Error cargando horarios:", err)
+      next: (data: Schedule[]) => {
+        this.schedules = data;
+        console.log('🕐 Horarios cargados para organización:', organizationId, data);
+        
+        // Si no hay horarios disponibles, mostrar advertencia
+        if (data.length === 0) {
+          console.warn('⚠️ No hay horarios disponibles para esta organización');
+        }
+      },
+      error: (err) => {
+        console.error("❌ Error cargando horarios:", err);
+        this.schedules = [];
+        // Mostrar error al usuario
+        Swal.fire({
+          icon: 'warning',
+          title: 'Advertencia',
+          text: 'No se pudieron cargar los horarios. Verifique que existan horarios configurados para su organización.',
+          confirmButtonText: 'Entendido'
+        });
+      }
     });
   }
 
@@ -109,14 +127,14 @@ export class ProgramFormComponent implements OnInit {
     private organizationResolver: OrganizationResolverService
   ) {
     this.programsForm = this.fb.group({
-      programCode: ['', [Validators.required, Validators.maxLength(20)]],
-      programDate: ['', Validators.required],
-      plannedStartTime: ['', Validators.required],
-      plannedEndTime: ['', Validators.required],
-      actualStartTime: [''],
-      actualEndTime: [''],
+      programCode: [{ value: '', disabled: true }, [Validators.required, Validators.maxLength(20)]],
+      programDate: [{ value: '', disabled: true }, Validators.required],
+      plannedStartTime: ['', [Validators.required, this.timeFormatValidator()]],
+      plannedEndTime: ['', [Validators.required, this.timeFormatValidator()]],
+      actualStartTime: ['', this.timeFormatValidator()],
+      actualEndTime: ['', this.timeFormatValidator()],
       organizationId: [{ value: '', disabled: true }, Validators.required],
-      routeId: ['', Validators.required],
+      routeId: ['', [Validators.required, this.routeValidator.bind(this)]],
       scheduleId: ['', Validators.required],
       zoneId: ['', Validators.required],
       streetId: ['', Validators.required],
@@ -126,7 +144,102 @@ export class ProgramFormComponent implements OnInit {
         Validators.maxLength(300),
         Validators.pattern(/^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ ]*$/)
       ]]
-    });
+    }, { validators: [this.timeRangeValidator.bind(this)] });
+  }
+
+  // Validador personalizado para formato de hora (HH:MM)
+  private timeFormatValidator() {
+    return (control: any) => {
+      if (!control.value) return null;
+      
+      const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(control.value)) {
+        return { invalidTimeFormat: true };
+      }
+      return null;
+    };
+  }
+
+  // Validador personalizado para horario (debe pertenecer a la organización actual)
+  private scheduleValidator(control: any) {
+    if (!control.value) return null;
+    
+    const currentOrgId = this.authService.getCurrentOrganizationId();
+    if (!currentOrgId) return null;
+    
+    // Verificar que el horario seleccionado pertenezca a la organización actual
+    const selectedSchedule = this.schedules.find(schedule => schedule.id === control.value);
+    if (selectedSchedule && selectedSchedule.organizationId !== currentOrgId) {
+      return { invalidScheduleOrganization: true };
+    }
+    
+    return null;
+  }
+
+  // Validador personalizado para ruta (debe pertenecer a la organización actual)
+  private routeValidator(control: any) {
+    if (!control.value) return null;
+    
+    const currentOrgId = this.authService.getCurrentOrganizationId();
+    if (!currentOrgId) return null;
+    
+    // Verificar que la ruta seleccionada pertenezca a la organización actual
+    const selectedRoute = this.routes.find(route => route.id === control.value);
+    if (selectedRoute && selectedRoute.organizationId !== currentOrgId) {
+      return { invalidRouteOrganization: true };
+    }
+    
+    return null;
+  }
+
+  // Validador personalizado para rango de horas
+  private timeRangeValidator(formGroup: FormGroup) {
+    const plannedStartTime = formGroup.get('plannedStartTime')?.value;
+    const plannedEndTime = formGroup.get('plannedEndTime')?.value;
+    const actualStartTime = formGroup.get('actualStartTime')?.value;
+    const actualEndTime = formGroup.get('actualEndTime')?.value;
+
+    const errors: any = {};
+
+    // Validar que la hora de fin planificada sea mayor que la de inicio
+    if (plannedStartTime && plannedEndTime) {
+      if (this.compareTimes(plannedStartTime, plannedEndTime) >= 0) {
+        errors.invalidPlannedTimeRange = true;
+      }
+    }
+
+    // Validar que la hora de fin real sea mayor que la de inicio (si ambas están presentes)
+    if (actualStartTime && actualEndTime) {
+      if (this.compareTimes(actualStartTime, actualEndTime) >= 0) {
+        errors.invalidActualTimeRange = true;
+      }
+    }
+
+    // Validar que las horas reales no sean menores que las planificadas (si están presentes)
+    if (plannedStartTime && actualStartTime) {
+      if (this.compareTimes(actualStartTime, plannedStartTime) < 0) {
+        errors.actualStartBeforePlanned = true;
+      }
+    }
+
+    if (plannedEndTime && actualEndTime) {
+      if (this.compareTimes(actualEndTime, plannedEndTime) < 0) {
+        errors.actualEndBeforePlanned = true;
+      }
+    }
+
+    return Object.keys(errors).length > 0 ? errors : null;
+  }
+
+  // Método auxiliar para comparar horas
+  private compareTimes(time1: string, time2: string): number {
+    const [hours1, minutes1] = time1.split(':').map(Number);
+    const [hours2, minutes2] = time2.split(':').map(Number);
+    
+    const totalMinutes1 = hours1 * 60 + minutes1;
+    const totalMinutes2 = hours2 * 60 + minutes2;
+    
+    return totalMinutes1 - totalMinutes2;
   }
 
   ngOnInit(): void {
@@ -156,6 +269,9 @@ export class ProgramFormComponent implements OnInit {
       console.log('➕ Modo CREACIÓN detectado');
     }
 
+    // Establecer fecha mínima como hoy
+    this.minDate = this.getTodayDate();
+
     if (this.programId) {
       console.log('📋 Cargando programa existente...');
       this.loadProgram(); // edición o vista
@@ -164,26 +280,43 @@ export class ProgramFormComponent implements OnInit {
       this.loadInitialData(); // creación
       this.generateProgramCode();
       this.programsForm.patchValue({
-        programDate: this.getTodayDateTime()
+        programDate: this.minDate
       });
+      // Bloquear la fecha para que no se pueda editar
+      this.programsForm.get('programDate')?.disable();
     }
   }
 
 
 
-  private getTodayDateTime(): string {
+  private getTodayDate(): string {
     const now = new Date();
     const year = now.getFullYear();
     const month = (now.getMonth() + 1).toString().padStart(2, '0');
     const day = now.getDate().toString().padStart(2, '0');
-    const hours = now.getHours().toString().padStart(2, '0');
-    const minutes = now.getMinutes().toString().padStart(2, '0');
-    return `${year}-${month}-${day}T${hours}:${minutes}`;
+    return `${year}-${month}-${day}`;
   }
 
   private generateProgramCode(): void {
-    const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
-    this.programsForm.patchValue({ programCode: `PRG${random}` });
+    // Obtener el siguiente código del backend
+    this.programsService.getNextProgramCode().subscribe({
+      next: (response: { nextCode: string }) => {
+        const nextCode = response.nextCode || 'PROG001';
+        this.programsForm.patchValue({ programCode: nextCode });
+        // También actualizar el valor del campo deshabilitado
+        this.programsForm.get('programCode')?.setValue(nextCode);
+        console.log('✅ Código del programa obtenido del backend:', nextCode);
+      },
+      error: (error: any) => {
+        console.error('❌ Error al obtener código del programa:', error);
+        // Fallback: generar código local si falla el backend
+        const random = Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+        const fallbackCode = `PRG${random}`;
+        this.programsForm.patchValue({ programCode: fallbackCode });
+        this.programsForm.get('programCode')?.setValue(fallbackCode);
+        console.log('⚠️ Usando código fallback:', fallbackCode);
+      }
+    });
   }
 
   isFormValid(): boolean {
@@ -193,9 +326,35 @@ export class ProgramFormComponent implements OnInit {
   getFieldError(fieldName: string): string {
     const field = this.programsForm.get(fieldName);
     if (!field || !field.errors) return '';
+    
     if (field.errors['required']) return 'Este campo es requerido';
     if (field.errors['maxlength']) return `Máximo ${field.errors['maxlength'].requiredLength} caracteres`;
+    if (field.errors['invalidTimeFormat']) return 'Formato de hora inválido (use HH:MM)';
+    if (field.errors['invalidScheduleOrganization']) return 'El horario seleccionado no pertenece a su organización';
+    if (field.errors['invalidRouteOrganization']) return 'La ruta seleccionada no pertenece a su organización';
+    
     return 'Campo inválido';
+  }
+
+  // Método para obtener errores del formulario completo (validaciones cruzadas)
+  getFormError(): string {
+    const formErrors = this.programsForm.errors;
+    if (!formErrors) return '';
+    
+    if (formErrors['invalidPlannedTimeRange']) {
+      return 'La hora de fin planificada debe ser mayor que la hora de inicio';
+    }
+    if (formErrors['invalidActualTimeRange']) {
+      return 'La hora de fin real debe ser mayor que la hora de inicio';
+    }
+    if (formErrors['actualStartBeforePlanned']) {
+      return 'La hora de inicio real no puede ser menor que la hora de inicio planificada';
+    }
+    if (formErrors['actualEndBeforePlanned']) {
+      return 'La hora de fin real no puede ser menor que la hora de fin planificada';
+    }
+    
+    return '';
   }
 
   isFieldInvalid(fieldName: string): boolean {
@@ -206,6 +365,17 @@ export class ProgramFormComponent implements OnInit {
   onSubmit(): void {
     if (this.programsForm.invalid) {
       this.markFormGroupTouched(this.programsForm);
+      return;
+    }
+
+    // Verificar validaciones cruzadas
+    if (this.getFormError()) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        text: this.getFormError(),
+        confirmButtonText: 'Entendido'
+      });
       return;
     }
 
@@ -268,21 +438,30 @@ export class ProgramFormComponent implements OnInit {
   }
 
   private formatDateOnly(dateStr: string): string {
+    if (!dateStr) return '';
+    // Si ya es un formato de fecha (YYYY-MM-DD), retornarlo tal como está
+    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+      return dateStr;
+    }
+    // Si es un datetime, extraer solo la fecha
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return '';
     return date.toISOString().split('T')[0];
   }
 
-  private formatTimeOnly(datetime: string): string {
-    if (!datetime) return '';
-    const date = new Date(datetime);
+  private formatTimeOnly(time: string): string {
+    if (!time) return '';
+    // Si ya es un formato de hora (HH:MM), retornarlo tal como está
+    if (time.match(/^\d{2}:\d{2}$/)) {
+      return time;
+    }
+    // Si es un datetime, extraer solo la hora
+    const date = new Date(time);
     if (isNaN(date.getTime())) return '';
     return date.toTimeString().slice(0, 5);
   }
 
-  private toDatetimeLocal(date: string, time: string = '00:00'): string {
-    if (!date || !time) return '';
-    return `${date}T${time}`;
-  }
+
 
   private prepareFormData(): any {
     const form = this.programsForm.getRawValue(); // 🔹 Incluye los disabled
@@ -326,11 +505,11 @@ export class ProgramFormComponent implements OnInit {
           setTimeout(() => {
             this.programsForm.patchValue({
               programCode: program.programCode,
-              programDate: this.toDatetimeLocal(dateOnly),
-              plannedStartTime: this.toDatetimeLocal(dateOnly, program.plannedStartTime),
-              plannedEndTime: this.toDatetimeLocal(dateOnly, program.plannedEndTime),
-              actualStartTime: program.actualStartTime ? this.toDatetimeLocal(dateOnly, program.actualStartTime) : '',
-              actualEndTime: program.actualEndTime ? this.toDatetimeLocal(dateOnly, program.actualEndTime) : '',
+              programDate: dateOnly,
+              plannedStartTime: program.plannedStartTime || '',
+              plannedEndTime: program.plannedEndTime || '',
+              actualStartTime: program.actualStartTime || '',
+              actualEndTime: program.actualEndTime || '',
               organizationId: program.organizationId,
               routeId: program.routeId,
               scheduleId: program.scheduleId,
@@ -340,6 +519,9 @@ export class ProgramFormComponent implements OnInit {
               status: program.status,
               observations: program.observations
             });
+
+            // Bloquear la fecha para que no se pueda editar
+            this.programsForm.get('programDate')?.disable();
 
             // Si hay zonaId, cargar las calles correspondientes
             if (program.zoneId) {

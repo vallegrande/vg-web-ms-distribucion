@@ -58,4 +58,10 @@ export class ProgramsService {
     );
   }
 
+  getNextProgramCode(): Observable<{ nextCode: string }> {
+    return this.http.get<ApiResponse<{ nextCode: string }>>(`${this.apiPrograms}/next-code`).pipe(
+      map(response => response.data)
+    );
+  }
+
 }

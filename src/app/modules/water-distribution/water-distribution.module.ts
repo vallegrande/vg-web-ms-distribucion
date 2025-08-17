@@ -1,14 +1,13 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { WaterQualityRoutingModule } from './water-distribution-routing.module';
-
+import { WaterDistributionRoutingModule } from './water-distribution-routing.module';
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    WaterQualityRoutingModule
+    WaterDistributionRoutingModule
   ]
 })
-export class WaterQualityModule { }
+export class WaterDistributionModule { }

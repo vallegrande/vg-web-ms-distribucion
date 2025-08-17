@@ -102,9 +102,26 @@ export const APP_ROUTES: Routes = [
         children: [
           {
             path: 'routes',
-            loadComponent: () =>
-              import('./modules/distribution/components/routes/routes-list/routes-list.component')
-                .then(c => c.RoutesListComponent),
+            children: [
+              {
+                path: '',
+                loadComponent: () =>
+                  import('./modules/distribution/components/routes/routes-list/routes-list.component')
+                    .then(c => c.RoutesListComponent),
+              },
+              {
+                path: 'new',
+                loadComponent: () =>
+                  import('./modules/distribution/components/routes/routes-form/routes-form.component')
+                    .then(c => c.RoutesFormComponent),
+              },
+              {
+                path: 'edit/:id',
+                loadComponent: () =>
+                  import('./modules/distribution/components/routes/routes-form/routes-form.component')
+                    .then(c => c.RoutesFormComponent),
+              }
+            ]
           },
           {
             path: 'programs',

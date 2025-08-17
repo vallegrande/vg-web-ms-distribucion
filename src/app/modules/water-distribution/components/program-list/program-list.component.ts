@@ -10,6 +10,7 @@ import { UserResponseDTO } from '../../../../core/models/user.model';
 import { UserService } from '../../../../core/services/user.service';
 import { organization } from '../../../../core/models/organization.model';
 import { OrganizationService } from '../../../../core/services/organization.service';
+import { AuthService } from '../../../../core/services/auth.service';
 import { routes, schedules } from '../../../../core/models/distribution.model';
 
 @Component({
@@ -21,6 +22,7 @@ import { routes, schedules } from '../../../../core/models/distribution.model';
 export class ProgramListComponent implements OnInit {
   programs: DistributionProgram[] = [];
   filteredPrograms: DistributionProgram[] = [];
+  public currentUser: any = null;
 
   routes: routes[] = [];
   schedules: schedules[] = [];
@@ -45,10 +47,20 @@ export class ProgramListComponent implements OnInit {
     private distributionService: DistributionService,
     private userService: UserService,
     private organizationService: OrganizationService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
   ngOnInit(): void {
+    // Obtener el usuario actual
+    this.currentUser = this.authService.getCurrentUser();
+    
+    if (!this.currentUser) {
+      this.showErrorAlert('Usuario no autenticado');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
     this.loadPrograms();
     this.loadRoutes();
     this.loadSchedules();
@@ -60,8 +72,12 @@ export class ProgramListComponent implements OnInit {
     this.loading = true;
     this.programsService.getAllPrograms().subscribe({
       next: (programList) => {
+        console.log('📋 Programas totales recibidos del backend:', programList.length);
         this.programs = programList;
-        this.filteredPrograms = programList;
+        // Filtrar solo los programas del usuario actual y su organización
+        this.filterProgramsByUser();
+        console.log('🔍 Programas después del filtrado por organización:', this.programs.length);
+        this.filteredPrograms = this.programs;
         this.loading = false;
       },
       error: (error) => {
@@ -71,41 +87,108 @@ export class ProgramListComponent implements OnInit {
     });
   }
 
+  filterProgramsByUser(): void {
+    if (!this.currentUser) {
+      console.warn('⚠️ No hay usuario actual para filtrar programas');
+      return;
+    }
+    
+    const userOrgId = this.currentUser.organizationId;
+    console.log('👤 Usuario actual organizationId:', userOrgId);
+    
+    // Filtrar por organización del usuario actual
+    const beforeFilter = this.programs.length;
+    this.programs = this.programs.filter(program => {
+      const programOrgId = program.organizationId;
+      const matches = programOrgId === userOrgId;
+      
+      if (!matches) {
+        console.log(`❌ Programa ${program.programCode} filtrado - Org: ${programOrgId} vs Usuario: ${userOrgId}`);
+      }
+      
+      return matches;
+    });
+    
+    console.log(`🔍 Filtrado: ${beforeFilter} -> ${this.programs.length} programas (organización: ${userOrgId})`);
+
+    // Ordenar por fecha del programa (más recientes primero)
+    this.programs.sort((a, b) => {
+      const dateA = new Date(a.programDate || 0);
+      const dateB = new Date(b.programDate || 0);
+      return dateB.getTime() - dateA.getTime();
+    });
+  }
+
   private loadRoutes(): void {
-    this.distributionService.getAllR().subscribe({
+    // Obtener solo las rutas de la organización del usuario actual
+    const currentOrgId = this.currentUser?.organizationId;
+    if (!currentOrgId) {
+      console.warn('⚠️ No hay organizationId en el usuario actual');
+      return;
+    }
+
+    this.distributionService.getRoutesByOrganization(currentOrgId).subscribe({
       next: (data: routes[]) => {
         this.routes = data;
         this.routeMap.clear();
-        data.forEach(r => this.routeMap.set(r.id, r.routeName));
+        data.forEach(r => this.routeMap.set(r.id, r.routeName || r.route_name || ''));
+        console.log('🛣️ Rutas cargadas para organización:', currentOrgId, data.length, 'rutas');
       },
-      error: (error: any) => console.error('Error al cargar rutas:', error)
+      error: (error: any) => {
+        console.error('❌ Error cargando rutas:', error);
+        this.routes = [];
+        this.routeMap.clear();
+      }
     });
   }
 
   private loadSchedules(): void {
-    this.distributionService.getAll().subscribe({
+    // Obtener solo los horarios de la organización del usuario actual
+    const currentOrgId = this.currentUser?.organizationId;
+    if (!currentOrgId) {
+      console.warn('⚠️ No hay organizationId en el usuario actual');
+      return;
+    }
+
+    this.distributionService.getSchedulesByOrganization(currentOrgId).subscribe({
       next: (data: schedules[]) => {
         this.schedules = data;
         this.scheduleMap.clear();
         data.forEach(s => this.scheduleMap.set(s.id, s.scheduleName));
+        console.log('🕐 Horarios cargados para organización:', currentOrgId, data.length, 'horarios');
       },
-      error: (error: any) => console.error('Error al cargar horarios:', error)
+      error: (error: any) => {
+        console.error('❌ Error cargando horarios:', error);
+        this.schedules = [];
+        this.scheduleMap.clear();
+      }
     });
   }
 
 private loadUsers(): void {
-  this.userService.getAllUsers().subscribe({
+  // Obtener solo los usuarios de la organización del usuario actual
+  const currentOrgId = this.currentUser?.organizationId;
+  if (!currentOrgId) {
+    console.warn('⚠️ No hay organizationId en el usuario actual');
+    return;
+  }
+
+  this.userService.getUsersByOrganization().subscribe({
     next: (data: UserResponseDTO[]) => {
-      console.log('Usuarios recibidos:', data); // Verifica estructura
+      console.log('👥 Usuarios recibidos para organización:', currentOrgId, data.length, 'usuarios');
       this.users = data;
       this.userMap.clear();
 
       data.forEach(u => {
-        console.log('Mapeando usuario:', u.id, '->', u.fullName); // Asegúrate de usar 'id' si así viene del backend
-        this.userMap.set(u.id, u.fullName); // Mapear correctamente
+        console.log('Mapeando usuario:', u.id, '->', u.fullName);
+        this.userMap.set(u.id, u.fullName);
       });
     },
-    error: (error: any) => console.error('Error al cargar usuarios:', error)
+    error: (error: any) => {
+      console.error('❌ Error cargando usuarios:', error);
+      this.users = [];
+      this.userMap.clear();
+    }
   });
 }
 
@@ -160,7 +243,12 @@ getResponsibleName(responsibleUserId: string): string {
 
 
   getOrganizationName(organizationId: string): string {
-    return this.organizationMap.get(organizationId) || organizationId;
+    return this.organizationMap.get(organizationId) || 'Organización desconocida';
+  }
+
+  getCurrentOrganizationName(): string {
+    if (!this.currentUser?.organizationId) return 'Sin organización';
+    return this.organizationMap.get(this.currentUser.organizationId) || 'Organización desconocida';
   }
 
   getRouteName(routeId: string): string {
@@ -217,6 +305,12 @@ getResponsibleName(responsibleUserId: string): string {
 
   private handleError(message: string, error: any): void {
     console.error('Error:', error);
+    this.showAlert = true;
+    this.alertType = 'error';
+    this.alertMessage = message;
+  }
+
+  private showErrorAlert(message: string): void {
     this.showAlert = true;
     this.alertType = 'error';
     this.alertMessage = message;

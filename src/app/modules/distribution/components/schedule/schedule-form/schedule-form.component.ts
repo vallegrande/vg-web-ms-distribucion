@@ -13,6 +13,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import Swal from 'sweetalert2';
 import { OrganizationService } from '../../../../../core/services/organization.service';
 import { DistributionService } from '../../../../../core/services/distribution.service';
+import { AuthService } from '../../../../../core/services/auth.service';
 import { schedulesUpdate, schedulesCreate } from '../../../../../core/models/distribution.model';
 import { organization, zones } from '../../../../../core/models/organization.model';
 
@@ -30,12 +31,14 @@ export class ScheduleFormComponent implements OnInit {
   loading: boolean = false;
   organizations: organization[] = [];
   zones: zones[] = [];
+  public currentUser: any = null;
   private scheduleCode: string = '';
 
   constructor(
     private fb: FormBuilder,
     private organizationService: OrganizationService,
     private distributionService: DistributionService,
+    private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute
   ) {
@@ -60,6 +63,15 @@ export class ScheduleFormComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    // Obtener el usuario actual
+    this.currentUser = this.authService.getCurrentUser();
+    
+    if (!this.currentUser) {
+      Swal.fire('Error', 'Usuario no autenticado', 'error');
+      this.router.navigate(['/auth/login']);
+      return;
+    }
+
     Promise.all([this.loadOrganizations(), this.loadZones()])
       .then(() => this.checkEditMode())
       .catch(err => console.error('Error inicial:', err));
@@ -86,7 +98,19 @@ export class ScheduleFormComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.organizationService.getAllOrganization().subscribe({
         next: (data) => {
-          this.organizations = data.filter(o => o.status === 'ACTIVE');
+          // Filtrar solo la organización del usuario actual
+          this.organizations = data.filter(o => 
+            o.status === 'ACTIVE' && 
+            o.organizationId === this.currentUser?.organizationId
+          );
+          
+          // Si solo hay una organización, seleccionarla automáticamente
+          if (this.organizations.length === 1) {
+            this.scheduleForm.patchValue({
+              organizationId: this.organizations[0].organizationId
+            });
+          }
+          
           resolve();
         },
         error: (err) => {
@@ -102,7 +126,11 @@ export class ScheduleFormComponent implements OnInit {
     return new Promise((resolve, reject) => {
       this.organizationService.getAllZones().subscribe({
         next: (data) => {
-          this.zones = data.filter(z => z.status === 'ACTIVE');
+          // Filtrar solo las zonas de la organización del usuario actual
+          this.zones = data.filter(z => 
+            z.status === 'ACTIVE' && 
+            z.organizationId === this.currentUser?.organizationId
+          );
           resolve();
         },
         error: (err) => {
@@ -120,6 +148,13 @@ export class ScheduleFormComponent implements OnInit {
       this.isEditMode = true;
       this.scheduleId = id;
       this.loadSchedule(id);
+    } else {
+      // Para nuevos horarios, establecer automáticamente la organización del usuario
+      if (this.currentUser?.organizationId && this.organizations.length > 0) {
+        this.scheduleForm.patchValue({
+          organizationId: this.currentUser.organizationId
+        });
+      }
     }
   }
 
@@ -128,16 +163,33 @@ export class ScheduleFormComponent implements OnInit {
     this.distributionService.getByIdS(id).subscribe({
       next: (schedule) => {
         this.scheduleCode = schedule.scheduleCode;
-        this.scheduleForm.patchValue({
-          scheduleName: schedule.scheduleName,
-          daysOfWeek: schedule.daysOfWeek,
-          startTime: schedule.startTime,
-          endTime: schedule.endTime,
-          durationHours: schedule.durationHours,
-          organizationId: schedule.organizationId,
-          zoneId: schedule.zoneId
-        });
-        this.loading = false;
+        
+        // Asegurarse de que las zonas estén cargadas antes de establecer el valor
+        if (this.zones.length === 0) {
+          this.loadZones().then(() => {
+            this.scheduleForm.patchValue({
+              scheduleName: schedule.scheduleName,
+              daysOfWeek: schedule.daysOfWeek,
+              startTime: schedule.startTime,
+              endTime: schedule.endTime,
+              durationHours: schedule.durationHours,
+              organizationId: schedule.organizationId,
+              zoneId: schedule.zoneId
+            });
+            this.loading = false;
+          });
+        } else {
+          this.scheduleForm.patchValue({
+            scheduleName: schedule.scheduleName,
+            daysOfWeek: schedule.daysOfWeek,
+            startTime: schedule.startTime,
+            endTime: schedule.endTime,
+            durationHours: schedule.durationHours,
+            organizationId: schedule.organizationId,
+            zoneId: schedule.zoneId
+          });
+          this.loading = false;
+        }
       },
       error: () => {
         this.loading = false;
@@ -169,6 +221,12 @@ export class ScheduleFormComponent implements OnInit {
     return selectedDays.includes(day);
   }
 
+  getCurrentOrganizationName(): string {
+    if (!this.currentUser?.organizationId) return 'Sin organización';
+    const org = this.organizations.find(o => o.organizationId === this.currentUser.organizationId);
+    return org ? org.organizationName : 'Organización desconocida';
+  }
+
   onSubmit() {
     if (this.scheduleForm.invalid) {
       this.markFormGroupTouched();
@@ -196,7 +254,7 @@ export class ScheduleFormComponent implements OnInit {
         startTime: formData.startTime,
         endTime: formData.endTime,
         durationHours: duration,
-        organizationId: formData.organizationId,
+        organizationId: formData.organizationId || this.currentUser?.organizationId,
         zoneId: formData.zoneId
       };
 
@@ -219,7 +277,7 @@ export class ScheduleFormComponent implements OnInit {
         startTime: formData.startTime,
         endTime: formData.endTime,
         durationHours: duration,
-        organizationId: formData.organizationId,
+        organizationId: formData.organizationId || this.currentUser?.organizationId,
         zoneId: formData.zoneId
       };
 

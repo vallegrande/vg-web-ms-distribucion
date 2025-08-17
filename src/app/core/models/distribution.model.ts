@@ -77,36 +77,57 @@ export enum DaysOfWeek {
 // distribution routes
 export interface routes {
     id: string;
-    organizationId: string;
-    routeCode: string;
-    routeName: string;
+    organization_id: string; // Cambiado para coincidir con MongoDB
+    route_code: string;      // Cambiado para coincidir con MongoDB
+    route_name: string;      // Cambiado para coincidir con MongoDB
     zones: Zones[];
-    totalEstimatedDuration: number;
-    responsibleUserId: string;
+    total_estimated_duration: number; // Cambiado para coincidir con MongoDB
+    responsible_user_id: string;      // Cambiado para coincidir con MongoDB
     status: Status;
-    created_at: string
+    created_at: string;
+    // Campos adicionales para compatibilidad con el frontend
+    organizationId?: string;
+    routeCode?: string;
+    routeName?: string;
+    totalEstimatedDuration?: number;
+    responsibleUserId?: string;
 }
 
 export interface routesCreate {
-    routeCode: string;
-    routeName: string;
+    organization_id: string;           // Agregado para coincidir con MongoDB
+    route_code: string;
+    route_name: string;
     zones: Zones[];
-    totalEstimatedDuration: number;
-    responsibleUserId: string;
+    total_estimated_duration: number;
+    responsible_user_id: string;
+    // Campos adicionales para compatibilidad
+    organizationId?: string;
+    routeCode?: string;
+    routeName?: string;
+    totalEstimatedDuration?: number;
+    responsibleUserId?: string;
 }
 
 export interface routesUpdate {
-    routeCode: string;
-    routeName: string;
+    route_code: string;
+    route_name: string;
     zones: Zones[];
-    totalEstimatedDuration: number;
-    responsibleUserId: string;
+    total_estimated_duration: number;
+    responsible_user_id: string;
+    // Campos adicionales para compatibilidad
+    routeCode?: string;
+    routeName?: string;
+    totalEstimatedDuration?: number;
+    responsibleUserId?: string;
 }
 
 export interface Zones {
-  zoneId?: string; 
+  zone_id?: string;           // Cambiado para coincidir con MongoDB
   order: number;
-  estimatedDuration: number;
+  estimated_duration: number; // Cambiado para coincidir con MongoDB
+  // Campos adicionales para compatibilidad
+  zoneId?: string;
+  estimatedDuration?: number;
 }
 
 

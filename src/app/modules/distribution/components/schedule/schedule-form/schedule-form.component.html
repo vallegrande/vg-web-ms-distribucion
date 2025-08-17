@@ -10,6 +10,23 @@
     <div class="flex items-center justify-between">
       <h1 class="text-2xl font-bold text-gray-900">{{ isEditMode ? 'Editar' : 'Nueva' }} Horario</h1>
     </div>
+    
+    <!-- Información del Usuario Actual -->
+    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center">
+        <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-blue-800">Usuario Actual</h3>
+          <p class="text-sm text-blue-600">
+            <strong>{{ currentUser?.fullName || 'Usuario' }}</strong> 
+            ({{ currentUser?.username || 'username' }}) - 
+            Organización: <strong>{{ getCurrentOrganizationName() }}</strong>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div class="bg-white rounded-lg shadow-sm border border-gray-200">
@@ -25,15 +42,16 @@
             id="organizationId"
             formControlName="organizationId"
             required
-            class="block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm focus:outline-none"
-            [class.border-red-300]="isFieldInvalid('organizationId')"
-            [class.focus:border-red-500]="isFieldInvalid('organizationId')"
-            [class.focus:ring-red-500]="isFieldInvalid('organizationId')">
+            [disabled]="true"
+            class="block w-full px-3 py-2 border rounded-md shadow-sm sm:text-sm focus:outline-none disabled:bg-gray-100 disabled:cursor-not-allowed">
             <option value="">Seleccionar organización</option>
             <option *ngFor="let o of organizations" [value]="o.organizationId">
               {{ o.organizationName }} ({{ o.organizationCode }})
             </option>
           </select>
+          <p class="mt-1 text-sm text-gray-500">
+            La organización se obtiene automáticamente del usuario logueado y no se puede modificar
+          </p>
           <p *ngIf="getFieldError('organizationId')" class="mt-1 text-sm text-red-600">
             {{ getFieldError('organizationId') }}
           </p>

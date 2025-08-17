@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { fares, faresCreate, faresUpdate, schedules, schedulesCreate, schedulesUpdate, routes } from '../models/distribution.model';
+import { fares, faresCreate, faresUpdate, schedules, schedulesCreate, schedulesUpdate, routes, routesCreate, routesUpdate } from '../models/distribution.model';
 import { map, Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
@@ -162,6 +162,30 @@ getSchedulesByOrganization(organizationId: string): Observable<schedules[]> {
 
   getByIdR(id: string): Observable<routes> {
     return this.http.get<ApiResponse<routes>>(`${this.apiRoutes}/${id}`).pipe(
+      map(response => response.data)
+    );
+  }
+
+  saveRoutes(route: routesCreate): Observable<routes> {
+    return this.http.post<ApiResponse<routes>>(this.apiRoutes, route).pipe(
+      map(response => response.data)
+    );
+  }
+
+  updateRoutes(id: string, route: routesUpdate): Observable<routes> {
+    return this.http.put<ApiResponse<routes>>(`${this.apiRoutes}/${id}`, route).pipe(
+      map(response => response.data)
+    );
+  }
+
+  deactivateRoutes(id: string): Observable<void> {
+    return this.http.patch<ApiResponse<void>>(`${this.apiRoutes}/${id}/deactivate`, {}).pipe(
+      map(response => response.data)
+    );
+  }
+
+  activateRoutes(id: string): Observable<void> {
+    return this.http.patch<ApiResponse<void>>(`${this.apiRoutes}/${id}/activate`, {}).pipe(
       map(response => response.data)
     );
   }

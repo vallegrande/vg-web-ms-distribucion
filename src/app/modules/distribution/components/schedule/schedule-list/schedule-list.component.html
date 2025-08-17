@@ -38,15 +38,32 @@
       <span class="text-gray-900">Horarios de Distribución</span>
     </nav>
     <div class="flex items-center justify-between">
-      <h1 class="text-2xl font-bold text-gray-900">Horarios</h1>
+      <h1 class="text-2xl font-bold text-gray-900">Mis Horarios</h1>
       <div class="flex items-center space-x-4 text-sm">
         <div class="flex items-center">
           <div class="w-3 h-3 bg-green-400 rounded-full mr-2"></div>
-          <span class="text-gray-600">Activas: {{ getActiveSCount() }}</span>
+          <span class="text-gray-600">Activos: {{ getActiveSCount() }}</span>
         </div>
         <div class="flex items-center">
           <div class="w-3 h-3 bg-red-400 rounded-full mr-2"></div>
-          <span class="text-gray-600">Inactivas: {{ getInactiveSCount() }}</span>
+          <span class="text-gray-600">Inactivos: {{ getInactiveSCount() }}</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Información del Usuario Actual -->
+    <div class="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div class="flex items-center">
+        <svg class="h-5 w-5 text-blue-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+        </svg>
+        <div>
+          <h3 class="text-sm font-medium text-blue-800">Usuario Actual</h3>
+          <p class="text-sm text-blue-600">
+            <strong>{{ currentUser?.fullName || 'Usuario' }}</strong> 
+            ({{ currentUser?.username || 'username' }}) - 
+            Organización: <strong>{{ getCurrentOrganizationName() }}</strong>
+          </p>
         </div>
       </div>
     </div>
@@ -86,6 +103,15 @@
               </path>
             </svg>
             Agregar Horario
+          </button>
+
+          <!-- Download All PDFs Button -->
+          <button (click)="downloadAllPDFs()"
+            class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">
+            <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Descargar Todos PDF
           </button>
         </div>
       </div>
@@ -148,6 +174,14 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
               <div class="flex items-center space-x-2">
+                <!-- Download PDF Button -->
+                <button (click)="downloadPDF(schedule)"
+                  class="text-green-600 hover:text-green-900 p-1 rounded hover:bg-green-50" title="Descargar PDF">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                </button>
+                
                 <button *ngIf="schedule.status === 'ACTIVE'" (click)="editSchedule(schedule.id)"
                   class="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50" title="Editar">
                   <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">

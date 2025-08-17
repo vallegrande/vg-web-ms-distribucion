@@ -31,25 +31,32 @@
     <form [formGroup]="programsForm" (ngSubmit)="onSubmit()" class="space-y-6">
       <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
         <div class="px-4 py-3 border-b border-gray-200 bg-gradient-to-r from-blue-200 to-indigo-300">
-          <div class="flex items-center">
-            <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <h2 class="text-base font-semibold text-gray-900">Datos del programa</h2>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <svg class="h-5 w-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <h2 class="text-base font-semibold text-gray-900">Datos del programa</h2>
+            </div>
+            <div class="text-sm text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
+              <svg class="h-4 w-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              Organización: {{ selectedOrganization?.organizationName }}
+            </div>
           </div>
         </div>
         <div class="p-4">
           <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Campos generales -->
             <ng-container *ngFor="let field of [
-              { id: 'programCode', label: 'Código del Programa', type: 'text', required: true },
-              { id: 'programDate', label: 'Fecha', type: 'datetime-local', required: true },
-              { id: 'plannedStartTime', label: 'Hora Planificada Inicio', type: 'datetime-local', required: true },
-              { id: 'plannedEndTime', label: 'Hora Planificada Fin', type: 'datetime-local', required: true },
-              { id: 'actualStartTime', label: 'Hora Real Inicio', type: 'datetime-local' },
-              { id: 'actualEndTime', label: 'Hora Real Fin', type: 'datetime-local' },
-              { id: 'observations', label: 'Observaciones', type: 'text' }
+              { id: 'programDate', label: 'Fecha', type: 'date', required: true, readonly: true, disabled: true },
+              { id: 'plannedStartTime', label: 'Hora Planificada Inicio', type: 'time', required: true, readonly: false, disabled: false },
+              { id: 'plannedEndTime', label: 'Hora Planificada Fin', type: 'time', required: true, readonly: false, disabled: false },
+              { id: 'actualStartTime', label: 'Hora Real Inicio', type: 'time', required: false, readonly: false, disabled: false },
+              { id: 'actualEndTime', label: 'Hora Real Fin', type: 'time', required: false, readonly: false, disabled: false },
+              { id: 'observations', label: 'Observaciones', type: 'text', required: false, readonly: false, disabled: false }
             ]">
               <div>
                 <label [for]="field.id" class="block text-sm font-medium text-gray-700">
@@ -60,56 +67,69 @@
                        [formControlName]="field.id"
                        class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                        [ngClass]="{ 'border-red-300': isFieldInvalid(field.id) }"
-                       [readonly]="isViewMode"
-                       [disabled]="isViewMode"
-                       [attr.min]="field.type === 'datetime-local' ? minDateTime : null"
+                       [readonly]="isViewMode || field.readonly"
+                       [disabled]="isViewMode || field.disabled"
+                       [class.bg-gray-100]="isViewMode || field.disabled"
+                       [attr.min]="field.type === 'date' ? minDate : null"
                 />
+                <p *ngIf="field.id === 'programDate'" class="mt-1 text-sm text-gray-500">
+                  La fecha se establece automáticamente y no se puede modificar
+                </p>
+                <p *ngIf="field.id === 'plannedStartTime' || field.id === 'plannedEndTime'" class="mt-1 text-sm text-gray-500">
+                  Hora planificada que se envía al backend
+                </p>
+                <p *ngIf="field.id === 'actualStartTime' || field.id === 'actualEndTime'" class="mt-1 text-sm text-gray-500">
+                  Hora real que se envía al backend
+                </p>
                 <p *ngIf="getFieldError(field.id)" class="mt-1 text-sm text-red-600">
                   {{ getFieldError(field.id) }}
                 </p>
               </div>
             </ng-container>
 
-   <!-- Organización (solo lectura) -->
-<div>
-  <label class="block text-sm font-medium text-gray-700">Organización</label>
-  <input type="text"
-         class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
-                focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
-         [value]="selectedOrganization?.organizationName"
-         readonly>
-</div>
+               <!-- Organización (solo lectura) -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700">Organización <span class="text-red-500">*</span></label>
+              <input type="text"
+                     class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                            focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm bg-gray-100"
+                     [value]="selectedOrganization?.organizationName"
+                     readonly>
+              <p class="mt-1 text-sm text-gray-500">
+                La organización se obtiene automáticamente del usuario logueado y no se puede modificar
+              </p>
+            </div>
 
-<!-- Zona -->
-<div>
-  <label for="zoneId" class="block text-sm font-medium text-gray-700">Zona <span class="text-red-500">*</span></label>
-  <select id="zoneId" formControlName="zoneId"
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
-                 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          [disabled]="isViewMode"
-          (change)="onZoneChange($any($event.target).value)">
-    <option value="">Seleccionar zona</option>
-    <option *ngFor="let zone of zones" [value]="zone.zoneId">
-      {{ zone.zoneName }}
-    </option>
-  </select>
-  <p *ngIf="getFieldError('zoneId')" class="mt-1 text-sm text-red-600">{{ getFieldError('zoneId') }}</p>
-</div>
+            <!-- Zona -->
+            <div>
+              <label for="zoneId" class="block text-sm font-medium text-gray-700">Zona <span class="text-red-500">*</span></label>
+              <select id="zoneId" formControlName="zoneId"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                             focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      [disabled]="isViewMode"
+                      (change)="onZoneChange($any($event.target).value)">
+                <option value="">Seleccionar zona</option>
+                <option *ngFor="let zone of zones" [value]="zone.zoneId">
+                  {{ zone.zoneName }}
+                </option>
+              </select>
+              <p *ngIf="getFieldError('zoneId')" class="mt-1 text-sm text-red-600">{{ getFieldError('zoneId') }}</p>
+            </div>
 
-<!-- Calle -->
-<div>
-  <label for="streetId" class="block text-sm font-medium text-gray-700">Calle <span class="text-red-500">*</span></label>
-  <select id="streetId" formControlName="streetId"
-          class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
-                 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-          [disabled]="isViewMode || !zones.length">
-    <option value="">Seleccionar calle</option>
-    <option *ngFor="let street of streets" [value]="street.streetId">
-      {{ street.streetName }}
-    </option>
-  </select>
-  <p *ngIf="getFieldError('streetId')" class="mt-1 text-sm text-red-600">{{ getFieldError('streetId') }}</p>
-</div>
+            <!-- Calle -->
+            <div>
+              <label for="streetId" class="block text-sm font-medium text-gray-700">Calle <span class="text-red-500">*</span></label>
+              <select id="streetId" formControlName="streetId"
+                      class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3
+                             focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                      [disabled]="isViewMode || !zones.length">
+                <option value="">Seleccionar calle</option>
+                <option *ngFor="let street of streets" [value]="street.streetId">
+                  {{ street.streetName }}
+                </option>
+              </select>
+              <p *ngIf="getFieldError('streetId')" class="mt-1 text-sm text-red-600">{{ getFieldError('streetId') }}</p>
+            </div>
 
             <!-- Ruta -->
             <div>
@@ -123,6 +143,12 @@
                 </option>
               </select>
               <p *ngIf="getFieldError('routeId')" class="mt-1 text-sm text-red-600">{{ getFieldError('routeId') }}</p>
+              <p class="mt-1 text-sm text-gray-500">
+                Solo se muestran las rutas disponibles para su organización: <strong>{{ selectedOrganization?.organizationName }}</strong>
+              </p>
+              <p *ngIf="routes.length === 0" class="mt-1 text-sm text-amber-600">
+                ⚠️ No hay rutas configuradas para su organización. Contacte al administrador.
+              </p>
             </div>
 
             <!-- Horario -->
@@ -137,6 +163,12 @@
                 </option>
               </select>
               <p *ngIf="getFieldError('scheduleId')" class="mt-1 text-sm text-red-600">{{ getFieldError('scheduleId') }}</p>
+              <p class="mt-1 text-sm text-gray-500">
+                Solo se muestran los horarios disponibles para su organización: <strong>{{ selectedOrganization?.organizationName }}</strong>
+              </p>
+              <p *ngIf="schedules.length === 0" class="mt-1 text-sm text-amber-600">
+                ⚠️ No hay horarios configurados para su organización. Contacte al administrador.
+              </p>
             </div>
 
             <!-- Responsable -->
@@ -152,13 +184,13 @@
               <p *ngIf="getFieldError('responsibleUserId')" class="mt-1 text-sm text-red-600">{{ getFieldError('responsibleUserId') }}</p>
             </div>
 
-            <!-- Estado -->
+            <!-- Progreso -->
             <div>
-              <label for="status" class="block text-sm font-medium text-gray-700">Estado <span class="text-red-500">*</span></label>
+              <label for="status" class="block text-sm font-medium text-gray-700">Progreso <span class="text-red-500">*</span></label>
               <select id="status" formControlName="status"
                 class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                 [disabled]="isViewMode">
-                <option value="">Seleccione un estado</option>
+                <option value="">Seleccione un Progreso</option>
                 <option value="PLANNED">PLANIFICADO</option>
                 <option value="IN_PROGRESS">EN PROGRESO</option>
                 <option value="COMPLETED">COMPLETADO</option>
@@ -167,6 +199,16 @@
               <p *ngIf="getFieldError('status')" class="mt-1 text-sm text-red-600">{{ getFieldError('status') }}</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- Mensaje de error general del formulario -->
+      <div *ngIf="getFormError()" class="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div class="flex items-center">
+          <svg class="h-5 w-5 text-red-600 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
+          </svg>
+          <p class="text-sm font-medium text-red-800">{{ getFormError() }}</p>
         </div>
       </div>
 
