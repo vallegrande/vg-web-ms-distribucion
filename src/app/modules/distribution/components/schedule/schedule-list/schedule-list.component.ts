@@ -170,215 +170,327 @@ export class ScheduleListComponent implements OnInit {
     const statusText = this.getStatusLabel(schedule.status);
     
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Horario - ${schedule.scheduleCode}</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            color: #333; 
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          .section { 
-            margin-bottom: 25px; 
-            page-break-inside: avoid;
-          }
-          .section-title { 
-            background: #f3f4f6; 
-            padding: 10px; 
-            font-weight: bold; 
-            border-left: 4px solid #3b82f6; 
-            margin-bottom: 15px; 
-          }
-          .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-          }
-          .field { 
-            margin-bottom: 15px; 
-          }
-          .label { 
-            font-weight: bold; 
-            color: #6b7280; 
-            font-size: 12px; 
-            text-transform: uppercase; 
-          }
-          .value { 
-            font-size: 14px; 
-            margin-top: 5px; 
-          }
-          .status { 
-            display: inline-block; 
-            padding: 5px 10px; 
-            border-radius: 15px; 
-            font-size: 12px; 
-            font-weight: bold; 
-          }
-          .status-active { background: #d1fae5; color: #065f46; }
-          .status-inactive { background: #fee2e2; color: #991b1b; }
-          @media print {
-            body { margin: 0; }
-            .section { page-break-inside: avoid; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>INFORMACIÓN DE HORARIO</h1>
-          <h2>${schedule.scheduleCode}</h2>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
-        </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Horario - ${schedule.scheduleCode}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --brand:#2563eb;
+      --brand-2:#3b82f6;
+      --success:#10b981;
+      --danger:#ef4444;
+      --muted:#6b7280;
+      --bg:#f8fafc;
+      --card:#ffffff;
+      --border:#e5e7eb;
+    }
+    body{
+      font-family:"Segoe UI",Roboto,Arial,sans-serif;
+      margin:0;
+      padding:32px;
+      background:var(--bg);
+      color:#111827;
+      line-height:1.6;
+    }
+    .wrapper{max-width:880px;margin:0 auto}
 
-        <div class="section">
-          <div class="section-title">INFORMACIÓN BÁSICA</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Código de Horario</div>
-              <div class="value">${schedule.scheduleCode}</div>
-            </div>
-            <div class="field">
-              <div class="label">Nombre de Horario</div>
-              <div class="value">${schedule.scheduleName}</div>
-            </div>
-            <div class="field">
-              <div class="label">Días de la Semana</div>
-              <div class="value">${schedule.daysOfWeek}</div>
-            </div>
-            <div class="field">
-              <div class="label">Estado</div>
-              <div class="value">
-                <span class="status status-${schedule.status.toLowerCase()}">${statusText}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    header.schedule-head{
+      text-align:center;
+      padding-bottom:20px;
+      margin-bottom:28px;
+      border-bottom:2px solid var(--brand);
+    }
+    header.schedule-head img.logo{
+      max-height:70px;
+      margin-bottom:12px;
+    }
+    header.schedule-head h1{
+      margin:0;
+      font-size:24px;
+      color:#0f172a;
+      text-transform:uppercase;
+    }
+    header.schedule-head h2{
+      margin:8px 0 0;
+      font-size:18px;
+      color:var(--muted);
+    }
+    header.schedule-head p{
+      margin:4px 0 0;
+      font-size:13px;
+      color:var(--muted);
+    }
 
-        <div class="section">
-          <div class="section-title">HORARIOS Y DURACIÓN</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Hora de Inicio</div>
-              <div class="value">${schedule.startTime}h</div>
-            </div>
-            <div class="field">
-              <div class="label">Hora de Fin</div>
-              <div class="value">${schedule.endTime}h</div>
-            </div>
-            <div class="field">
-              <div class="label">Duración</div>
-              <div class="value">${schedule.durationHours}h</div>
-            </div>
-          </div>
-        </div>
+    .section{
+      margin-bottom:24px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow:0 4px 12px rgba(0,0,0,.04);
+      overflow:hidden;
+      page-break-inside:avoid;
+    }
+    .section-title{
+      background:linear-gradient(90deg,var(--brand),var(--brand-2));
+      color:#fff;
+      padding:12px 16px;
+      font-weight:700;
+      font-size:13px;
+      text-transform:uppercase;
+    }
+    .section-body{padding:18px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .field{margin-bottom:15px}
+    .label{font-weight:700;color:var(--muted);font-size:12px;text-transform:uppercase}
+    .value{font-size:14px;margin-top:4px}
 
-        <div class="section">
-          <div class="section-title">UBICACIÓN</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Organización</div>
-              <div class="value">${organizationName}</div>
-            </div>
-            <div class="field">
-              <div class="label">Zona</div>
-              <div class="value">${zoneName}</div>
-            </div>
-          </div>
+    .status{display:inline-block;padding:5px 10px;border-radius:999px;font-size:12px;font-weight:700}
+    .status-active{background:#d1fae5;color:#065f46}
+    .status-inactive{background:#fee2e2;color:#991b1b}
+
+    @media print{
+      body{
+        padding:12mm;
+        background:#fff;
+        print-color-adjust:exact;
+        -webkit-print-color-adjust:exact;
+      }
+      header.schedule-head{
+        border-bottom:1px solid var(--border);
+        margin-bottom:12px;
+        padding-bottom:12px;
+        background:#fff;
+        position:static; /* ✅ evita corte del encabezado */
+      }
+      header.schedule-head img.logo{max-height:50px}
+      .section{box-shadow:none}
+      @page{size:A4;margin:20mm}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <header class="schedule-head">
+      <!-- Logo con múltiples rutas de respaldo para Google Drive -->
+      <img
+        class="logo"
+        alt="Logo"
+        src="https://drive.google.com/uc?export=view&id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6"
+        style="height:64px;width:auto;object-fit:contain"
+        onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='https://drive.google.com/thumbnail?id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6&sz=w600';}
+                 else if(this.dataset.fallback==1){this.dataset.fallback=2;this.src='https://lh3.googleusercontent.com/d/1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6=s600';}
+                 else {this.removeAttribute('onerror'); this.alt='[Logo no disponible]';}" />
+
+      <h1>Información de Horario</h1>
+      <h2>${schedule.scheduleCode}</h2>
+      <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
+    </header>
+
+    <section class="section">
+      <div class="section-title">Información Básica</div>
+      <div class="section-body grid">
+        <div class="field">
+          <div class="label">Código de Horario</div>
+          <div class="value">${schedule.scheduleCode}</div>
         </div>
-      </body>
-      </html>
+        <div class="field">
+          <div class="label">Nombre de Horario</div>
+          <div class="value">${schedule.scheduleName}</div>
+        </div>
+        <div class="field">
+          <div class="label">Días de la Semana</div>
+          <div class="value">${schedule.daysOfWeek}</div>
+        </div>
+        <div class="field">
+          <div class="label">Estado</div>
+          <div class="value"><span class="status status-${schedule.status.toLowerCase()}">${statusText}</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Horarios y Duración</div>
+      <div class="section-body grid">
+        <div class="field">
+          <div class="label">Hora de Inicio</div>
+          <div class="value">${schedule.startTime}h</div>
+        </div>
+        <div class="field">
+          <div class="label">Hora de Fin</div>
+          <div class="value">${schedule.endTime}h</div>
+        </div>
+        <div class="field">
+          <div class="label">Duración</div>
+          <div class="value">${schedule.durationHours}h</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-title">Ubicación</div>
+      <div class="section-body grid">
+        <div class="field">
+          <div class="label">Organización</div>
+          <div class="value">${organizationName}</div>
+        </div>
+        <div class="field">
+          <div class="label">Zona</div>
+          <div class="value">${zoneName}</div>
+        </div>
+      </div>
+    </section>
+  </div>
+</body>
+</html>
+
+
+
     `;
   }
 
   private generateAllPDFsContent(): string {
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Reporte de Horarios</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            color: #333; 
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-          }
-          th, td { 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-            text-align: left; 
-          }
-          th { 
-            background-color: #f3f4f6; 
-            font-weight: bold; 
-          }
-          .status-active { background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 12px; font-size: 11px; }
-          .status-inactive { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 12px; font-size: 11px; }
-          @media print {
-            body { margin: 0; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>REPORTE COMPLETO DE HORARIOS</h1>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
-          <p>Total de horarios: ${this.filteredSchedules.length}</p>
-        </div>
+     <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reporte de Horarios</title>
+  <style>
+    :root{
+      --brand:#2563eb;
+      --brand-2:#3b82f6;
+      --muted:#6b7280;
+      --success:#10b981;
+      --danger:#ef4444;
+      --bg:#f8fafc;
+      --border:#e5e7eb;
+    }
+    body{
+      font-family:"Segoe UI",Roboto,Arial,sans-serif;
+      margin:32px;
+      background:var(--bg);
+      color:#111827;
+      line-height:1.6;
+    }
+    .header{
+      text-align:center;
+      border-bottom:2px solid var(--brand);
+      padding-bottom:20px;
+      margin-bottom:30px;
+    }
+    .header img.logo{
+      max-height:70px;
+      margin-bottom:10px;
+    }
+    .header h1{
+      margin:0;
+      font-size:24px;
+      color:#0f172a;
+    }
+    .header p{
+      margin:4px 0;
+      font-size:13px;
+      color:var(--muted);
+    }
 
-        <table>
-          <thead>
-            <tr>
-              <th>CÓDIGO</th>
-              <th>NOMBRE</th>
-              <th>DÍAS</th>
-              <th>INICIO</th>
-              <th>FIN</th>
-              <th>DURACIÓN</th>
-              <th>ORGANIZACIÓN</th>
-              <th>ZONA</th>
-              <th>ESTADO</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${this.filteredSchedules.map(schedule => `
-              <tr>
-                <td>${schedule.scheduleCode}</td>
-                <td>${schedule.scheduleName}</td>
-                <td>${schedule.daysOfWeek}</td>
-                <td>${schedule.startTime}h</td>
-                <td>${schedule.endTime}h</td>
-                <td>${schedule.durationHours}h</td>
-                <td>${this.getNameOrganization(schedule.organizationId)}</td>
-                <td>${this.getNameZone(schedule.zoneId)}</td>
-                <td><span class="status status-${schedule.status.toLowerCase()}">${this.getStatusLabel(schedule.status)}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
+    table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:20px;
+      background:#fff;
+      border-radius:10px;
+      overflow:hidden;
+      box-shadow:0 2px 6px rgba(0,0,0,.05);
+    }
+    th,td{
+      border:1px solid var(--border);
+      padding:10px 12px;
+      text-align:left;
+      font-size:13px;
+    }
+    th{
+      background:linear-gradient(90deg,var(--brand),var(--brand-2));
+      color:#fff;
+      font-size:12px;
+      text-transform:uppercase;
+      letter-spacing:.5px;
+    }
+    tr:nth-child(even){
+      background:#f9fafb;
+    }
+
+    .status{
+      display:inline-block;
+      padding:4px 10px;
+      border-radius:12px;
+      font-size:11px;
+      font-weight:700;
+    }
+    .status-active{background:#d1fae5;color:#065f46}
+    .status-inactive{background:#fee2e2;color:#991b1b}
+
+    @media print{
+      body{margin:0;padding:12mm;background:#fff;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+      .header img.logo{max-height:50px}
+      table{box-shadow:none;border:1px solid var(--border)}
+      th{color:#fff !important}
+      @page{size:A4; margin:12mm}
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- Logo con rutas de respaldo -->
+    <img 
+      class="logo"
+      alt="Logo"
+      src="https://drive.google.com/uc?export=view&id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6"
+      style="height:64px;width:auto;object-fit:contain"
+      onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='https://drive.google.com/thumbnail?id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6&sz=w600';}
+               else if(this.dataset.fallback==1){this.dataset.fallback=2;this.src='https://lh3.googleusercontent.com/d/1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6=s600';}
+               else {this.removeAttribute('onerror'); this.alt='[Logo no disponible]';}" />
+
+    <h1>Reporte Completo de Horarios</h1>
+    <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
+    <p>Total de horarios: ${this.filteredSchedules.length}</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Código</th>
+        <th>Nombre</th>
+        <th>Días</th>
+        <th>Inicio</th>
+        <th>Fin</th>
+        <th>Duración</th>
+        <th>Organización</th>
+        <th>Zona</th>
+        <th>Estado</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${this.filteredSchedules.map(schedule => `
+        <tr>
+          <td>${schedule.scheduleCode}</td>
+          <td>${schedule.scheduleName}</td>
+          <td>${schedule.daysOfWeek}</td>
+          <td>${schedule.startTime}h</td>
+          <td>${schedule.endTime}h</td>
+          <td>${schedule.durationHours}h</td>
+          <td>${this.getNameOrganization(schedule.organizationId)}</td>
+          <td>${this.getNameZone(schedule.zoneId)}</td>
+          <td><span class="status status-${schedule.status.toLowerCase()}">${this.getStatusLabel(schedule.status)}</span></td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+
     `;
   }
 

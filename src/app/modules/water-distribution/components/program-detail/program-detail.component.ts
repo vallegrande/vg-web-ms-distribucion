@@ -228,176 +228,267 @@ export class ProgramDetailComponent implements OnInit {
     const createdAt = this.program.createdAt ? new Date(this.program.createdAt).toLocaleDateString('es-ES') : 'Fecha no especificada';
     
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Programa de Distribución - ${this.program.programCode}</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            color: #333; 
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          .section { 
-            margin-bottom: 25px; 
-            page-break-inside: avoid;
-          }
-          .section-title { 
-            background: #f3f4f6; 
-            padding: 10px; 
-            font-weight: bold; 
-            border-left: 4px solid #3b82f6; 
-            margin-bottom: 15px; 
-          }
-          .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-          }
-          .field { 
-            margin-bottom: 15px; 
-          }
-          .label { 
-            font-weight: bold; 
-            color: #6b7280; 
-            font-size: 12px; 
-            text-transform: uppercase; 
-          }
-          .value { 
-            font-size: 14px; 
-            margin-top: 5px; 
-          }
-          .status { 
-            display: inline-block; 
-            padding: 5px 10px; 
-            border-radius: 15px; 
-            font-size: 12px; 
-            font-weight: bold; 
-          }
-          .status-planned { background: #dbeafe; color: #1e40af; }
-          .status-progress { background: #fef3c7; color: #92400e; }
-          .status-completed { background: #d1fae5; color: #065f46; }
-          .status-cancelled { background: #fee2e2; color: #991b1b; }
-          .observations { 
-            background: #f9fafb; 
-            padding: 15px; 
-            border-radius: 8px; 
-            border-left: 4px solid #10b981; 
-          }
-          @media print {
-            body { margin: 0; }
-            .section { page-break-inside: avoid; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>PROGRAMA DE DISTRIBUCIÓN DE AGUA</h1>
-          <h2>${this.program.programCode}</h2>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
-        </div>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Programa de Distribución - ${this.program.programCode}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    :root{
+      --brand:#2563eb;         /* primario */
+      --brand-2:#3b82f6;       /* acento */
+      --success:#10b981;
+      --warning:#f59e0b;
+      --danger:#ef4444;
+      --text:#111827;          /* gris 900 */
+      --muted:#6b7280;         /* gris 500 */
+      --bg:#f8fafc;            /* gris 50 */
+      --card:#ffffff;          /* blanco */
+      --border:#e5e7eb;        /* gris 200 */
+    }
 
-        <div class="section">
-          <div class="section-title">INFORMACIÓN BÁSICA</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Código del Programa</div>
-              <div class="value">${this.program.programCode}</div>
-            </div>
-            <div class="field">
-              <div class="label">Fecha del Programa</div>
-              <div class="value">${programDate}</div>
-            </div>
-            <div class="field">
-              <div class="label">Estado</div>
-              <div class="value">
-                <span class="status status-${this.program.status.toLowerCase()}">${this.getStatusText(this.program.status)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
+    *{box-sizing:border-box}
+    html,body{height:100%}
 
-        <div class="section">
-          <div class="section-title">HORARIOS</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Hora Planificada Inicio</div>
-              <div class="value">${this.program.plannedStartTime || '--:--'}</div>
-            </div>
-            <div class="field">
-              <div class="label">Hora Planificada Fin</div>
-              <div class="value">${this.program.plannedEndTime || '--:--'}</div>
-            </div>
-            <div class="field">
-              <div class="label">Hora Real Inicio</div>
-              <div class="value">${this.program.actualStartTime || '--:--'}</div>
-            </div>
-            <div class="field">
-              <div class="label">Hora Real Fin</div>
-              <div class="value">${this.program.actualEndTime || '--:--'}</div>
-            </div>
-          </div>
-        </div>
+    body{
+      font-family: "Segoe UI", Roboto, Arial, sans-serif;
+      margin:0;
+      padding:32px;
+      color:var(--text);
+      line-height:1.6;
+      background:var(--bg);
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+    }
 
-        <div class="section">
-          <div class="section-title">INFORMACIÓN DE UBICACIÓN</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Organización</div>
-              <div class="value">${this.getOrganizationName(this.program.organizationId)}</div>
-            </div>
-            <div class="field">
-              <div class="label">Zona</div>
-              <div class="value">${this.getZoneName(this.program.zoneId)}</div>
-            </div>
-            <div class="field">
-              <div class="label">Calle</div>
-              <div class="value">${this.getStreetName(this.program.streetId)}</div>
-            </div>
-          </div>
-        </div>
+    .wrapper{
+      max-width:980px;
+      margin:0 auto;
+    }
 
-        <div class="section">
-          <div class="section-title">RUTA Y HORARIO</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Ruta</div>
-              <div class="value">${this.getRouteName(this.program.routeId)}</div>
-            </div>
-            <div class="field">
-              <div class="label">Horario</div>
-              <div class="value">${this.getScheduleName(this.program.scheduleId)}</div>
-            </div>
-          </div>
-        </div>
+    /* ===== Header ===== */
+    header.report-head{
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:16px;
+      align-items:center;
+      padding:20px 24px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      box-shadow:0 6px 18px rgba(0,0,0,.06);
+      margin-bottom:28px;
+    }
 
-        <div class="section">
-          <div class="section-title">RESPONSABLE E INFORMACIÓN ADICIONAL</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Responsable</div>
-              <div class="value">${this.getResponsibleName(this.program.responsibleUserId)}</div>
-            </div>
-            <div class="field">
-              <div class="label">Fecha de Creación</div>
-              <div class="value">${createdAt}</div>
-            </div>
+    .brand{display:flex;align-items:center;gap:12px}
+    .brand img{height:56px;width:auto;object-fit:contain}
+
+    .titles{ text-align:center }
+    .titles h1{
+      margin:0;
+      font-size:22px;
+      letter-spacing:.5px;
+      color:#0f172a;
+      text-transform:uppercase;
+    }
+    .titles h2{ margin:6px 0 0; font-size:16px; color:var(--muted); font-weight:600 }
+    .meta{ text-align:right; font-size:13px; color:var(--muted) }
+
+    /* ===== Section Card ===== */
+    .section{
+      margin-bottom:24px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:14px;
+      overflow:hidden;
+      box-shadow:0 6px 18px rgba(0,0,0,.04);
+      page-break-inside: avoid;
+    }
+    .section-title{
+      background:linear-gradient(90deg,var(--brand),var(--brand-2));
+      color:#fff;
+      padding:12px 16px;
+      font-weight:700;
+      letter-spacing:.6px;
+      text-transform:uppercase;
+      font-size:13px;
+    }
+    .section-body{ padding:18px }
+
+    /* ===== Grid of fields ===== */
+    .grid{ display:grid; grid-template-columns:1fr 1fr; gap:20px }
+    .field{ margin:2px 0 }
+    .label{ font-weight:700; color:#475569; font-size:11px; text-transform:uppercase; letter-spacing:.5px }
+    .value{ font-size:14px; margin-top:6px; color:#0b1423 }
+
+    /* ===== Status chips ===== */
+    .status{ display:inline-block; padding:6px 12px; border-radius:999px; font-size:12px; font-weight:700; box-shadow:0 2px 6px rgba(0,0,0,.08) }
+    .status-planned{ background:#dbeafe; color:#1e40af }
+    .status-progress{ background:#fef3c7; color:#92400e }
+    .status-completed{ background:#d1fae5; color:#065f46 }
+    .status-cancelled{ background:#fee2e2; color:#991b1b }
+
+    /* ===== Observations ===== */
+    .observations{
+      background:#f0fdf4;
+      padding:16px;
+      border-radius:10px;
+      border-left:5px solid var(--success);
+      color:#064e3b;
+      font-style:italic;
+    }
+
+    /* ===== Footer (print) ===== */
+    .footer{ margin-top:28px; font-size:12px; color:var(--muted); text-align:center }
+
+    /* ===== Print Styles ===== */
+    @media print{
+      body{ padding:16mm; background:#fff; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .section{ box-shadow:none }
+      @page{ size: A4; margin:16mm }
+      .screen-only{ display:none !important }
+      .footer{ position: fixed; bottom: 8mm; left: 0; right: 0 }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <!-- Encabezado con logo y metadatos -->
+    <header class="report-head">
+      <div class="brand">
+        <!-- Logo con múltiples rutas de respaldo para Google Drive -->
+        <img
+          id="org-logo"
+          alt="Logo"
+          src="https://drive.google.com/uc?export=view&id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6"
+          style="height:64px;width:auto;object-fit:contain"
+          onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='https://drive.google.com/thumbnail?id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6&sz=w600';}
+                   else if(this.dataset.fallback==1){this.dataset.fallback=2;this.src='https://lh3.googleusercontent.com/d/1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6=s600';}
+                   else {this.removeAttribute('onerror'); this.alt='[Logo no disponible]';}"
+        />
+      </div>
+      <div class="titles">
+        <h1>Programa de Distribución de Agua</h1>
+        <h2>Código: ${this.program.programCode}</h2>
+      </div>
+      <div class="meta">
+        Fecha de generación:<br/>
+        ${new Date().toLocaleDateString('es-ES')}
+      </div>
+    </header>
+
+    <!-- Información básica -->
+    <section class="section">
+      <div class="section-title">Información Básica</div>
+      <div class="section-body">
+        <div class="grid">
+          <div class="field">
+            <div class="label">Código del Programa</div>
+            <div class="value">${this.program.programCode}</div>
           </div>
-          <div class="field" style="margin-top: 20px;">
-            <div class="label">Observaciones</div>
-            <div class="observations">${this.program.observations || 'Sin observaciones'}</div>
+          <div class="field">
+            <div class="label">Fecha del Programa</div>
+            <div class="value">${programDate}</div>
+          </div>
+          <div class="field">
+            <div class="label">Estado</div>
+            <div class="value"><span class="status status-${this.program.status.toLowerCase()}">${this.getStatusText(this.program.status)}</span></div>
           </div>
         </div>
-      </body>
-      </html>
+      </div>
+    </section>
+
+    <!-- Horarios -->
+    <section class="section">
+      <div class="section-title">Horarios</div>
+      <div class="section-body">
+        <div class="grid">
+          <div class="field">
+            <div class="label">Hora Planificada Inicio</div>
+            <div class="value">${this.program.plannedStartTime || '--:--'}</div>
+          </div>
+          <div class="field">
+            <div class="label">Hora Planificada Fin</div>
+            <div class="value">${this.program.plannedEndTime || '--:--'}</div>
+          </div>
+          <div class="field">
+            <div class="label">Hora Real Inicio</div>
+            <div class="value">${this.program.actualStartTime || '--:--'}</div>
+          </div>
+          <div class="field">
+            <div class="label">Hora Real Fin</div>
+            <div class="value">${this.program.actualEndTime || '--:--'}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ubicación -->
+    <section class="section">
+      <div class="section-title">Información de Ubicación</div>
+      <div class="section-body">
+        <div class="grid">
+          <div class="field">
+            <div class="label">Organización</div>
+            <div class="value">${this.getOrganizationName(this.program.organizationId)}</div>
+          </div>
+          <div class="field">
+            <div class="label">Zona</div>
+            <div class="value">${this.getZoneName(this.program.zoneId)}</div>
+          </div>
+          <div class="field">
+            <div class="label">Calle</div>
+            <div class="value">${this.getStreetName(this.program.streetId)}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ruta y Horario -->
+    <section class="section">
+      <div class="section-title">Ruta y Horario</div>
+      <div class="section-body">
+        <div class="grid">
+          <div class="field">
+            <div class="label">Ruta</div>
+            <div class="value">${this.getRouteName(this.program.routeId)}</div>
+          </div>
+          <div class="field">
+            <div class="label">Horario</div>
+            <div class="value">${this.getScheduleName(this.program.scheduleId)}</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Responsable y Observaciones -->
+    <section class="section">
+      <div class="section-title">Responsable e Información Adicional</div>
+      <div class="section-body">
+        <div class="grid">
+          <div class="field">
+            <div class="label">Responsable</div>
+            <div class="value">${this.getResponsibleName(this.program.responsibleUserId)}</div>
+          </div>
+          <div class="field">
+            <div class="label">Fecha de Creación</div>
+            <div class="value">${createdAt}</div>
+          </div>
+        </div>
+        <div class="field" style="margin-top:16px">
+          <div class="label">Observaciones</div>
+          <div class="observations">${this.program.observations || 'Sin observaciones'}</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer screen-only">Documento generado automáticamente.</div>
+  </div>
+</body>
+</html>
+
+
     `;
   }
 

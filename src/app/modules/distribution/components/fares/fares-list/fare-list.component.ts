@@ -178,191 +178,302 @@ export class FareListComponent implements OnInit {
     const statusText = this.getStatusLabel(fare.status);
     
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Tarifa - ${fare.fareCode}</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            color: #333; 
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          .section { 
-            margin-bottom: 25px; 
-            page-break-inside: avoid;
-          }
-          .section-title { 
-            background: #f3f4f6; 
-            padding: 10px; 
-            font-weight: bold; 
-            border-left: 4px solid #3b82f6; 
-            margin-bottom: 15px; 
-          }
-          .grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 20px; 
-          }
-          .field { 
-            margin-bottom: 15px; 
-          }
-          .label { 
-            font-weight: bold; 
-            color: #6b7280; 
-            font-size: 12px; 
-            text-transform: uppercase; 
-          }
-          .value { 
-            font-size: 14px; 
-            margin-top: 5px; 
-          }
-          .status { 
-            display: inline-block; 
-            padding: 5px 10px; 
-            border-radius: 15px; 
-            font-size: 12px; 
-            font-weight: bold; 
-          }
-          .status-active { background: #d1fae5; color: #065f46; }
-          .status-inactive { background: #fee2e2; color: #991b1b; }
-          @media print {
-            body { margin: 0; }
-            .section { page-break-inside: avoid; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>INFORMACIÓN DE TARIFA</h1>
-          <h2>${fare.fareCode}</h2>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
-        </div>
+     <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Tarifa - ${fare.fareCode}</title>
+  <style>
+    :root {
+      --brand:#2563eb;
+      --brand-2:#3b82f6;
+      --muted:#6b7280;
+      --success:#10b981;
+      --danger:#ef4444;
+      --bg:#f8fafc;
+      --border:#e5e7eb;
+    }
+    body {
+      font-family:"Segoe UI",Roboto,Arial,sans-serif;
+      margin:32px;
+      background:var(--bg);
+      color:#111827;
+      line-height:1.6;
+    }
+    .header {
+      text-align:center;
+      border-bottom:2px solid var(--brand);
+      padding-bottom:20px;
+      margin-bottom:30px;
+    }
+    .header img.logo {
+      max-height:70px;
+      margin-bottom:10px;
+    }
+    .header h1 {
+      margin:0;
+      font-size:24px;
+      color:#0f172a;
+    }
+    .header h2 {
+      margin:6px 0;
+      font-size:18px;
+      font-weight:500;
+      color:var(--brand);
+    }
+    .header p {
+      margin:4px 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    .section {
+      margin-bottom:25px;
+      page-break-inside:avoid;
+    }
+    .section-title {
+      background:linear-gradient(90deg,var(--brand),var(--brand-2));
+      padding:10px;
+      font-weight:bold;
+      color:#fff;
+      border-radius:6px;
+      margin-bottom:15px;
+      font-size:13px;
+      letter-spacing:.5px;
+    }
+    .grid {
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:20px;
+    }
+    .field {
+      margin-bottom:15px;
+    }
+    .label {
+      font-weight:bold;
+      color:var(--muted);
+      font-size:12px;
+      text-transform:uppercase;
+    }
+    .value {
+      font-size:14px;
+      margin-top:5px;
+    }
+    .status {
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:15px;
+      font-size:12px;
+      font-weight:bold;
+    }
+    .status-active { background:#d1fae5; color:#065f46; }
+    .status-inactive { background:#fee2e2; color:#991b1b; }
 
-        <div class="section">
-          <div class="section-title">INFORMACIÓN BÁSICA</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Código de Tarifa</div>
-              <div class="value">${fare.fareCode}</div>
-            </div>
-            <div class="field">
-              <div class="label">Nombre de Tarifa</div>
-              <div class="value">${fare.fareName}</div>
-            </div>
-            <div class="field">
-              <div class="label">Tipo de Tarifa</div>
-              <div class="value">${fare.fareType}</div>
-            </div>
-            <div class="field">
-              <div class="label">Monto</div>
-              <div class="value">S/. ${fare.fareAmount?.toFixed(2)}</div>
-            </div>
-          </div>
-        </div>
+    @media print {
+      body { margin:0; padding:12mm; background:#fff; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .header img.logo { max-height:50px; }
+      @page { size:A4; margin:12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- Logo con múltiples rutas de respaldo -->
+    <img 
+      class="logo"
+      alt="Logo"
+      src="https://drive.google.com/uc?export=view&id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6"
+      style="height:64px;width:auto;object-fit:contain"
+      onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='https://drive.google.com/thumbnail?id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6&sz=w600';}
+               else if(this.dataset.fallback==1){this.dataset.fallback=2;this.src='https://lh3.googleusercontent.com/d/1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6=s600';}
+               else {this.removeAttribute('onerror'); this.alt='[Logo no disponible]';}" />
 
-        <div class="section">
-          <div class="section-title">INFORMACIÓN ADICIONAL</div>
-          <div class="grid">
-            <div class="field">
-              <div class="label">Organización</div>
-              <div class="value">${organizationName}</div>
-            </div>
-            <div class="field">
-              <div class="label">Estado</div>
-              <div class="value">
-                <span class="status status-${fare.status.toLowerCase()}">${statusText}</span>
-              </div>
-            </div>
-          </div>
+    <h1>INFORMACIÓN DE TARIFA</h1>
+    <h2>${fare.fareCode}</h2>
+    <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">INFORMACIÓN BÁSICA</div>
+    <div class="grid">
+      <div class="field">
+        <div class="label">Código de Tarifa</div>
+        <div class="value">${fare.fareCode}</div>
+      </div>
+      <div class="field">
+        <div class="label">Nombre de Tarifa</div>
+        <div class="value">${fare.fareName}</div>
+      </div>
+      <div class="field">
+        <div class="label">Tipo de Tarifa</div>
+        <div class="value">${fare.fareType}</div>
+      </div>
+      <div class="field">
+        <div class="label">Monto</div>
+        <div class="value">S/. ${fare.fareAmount?.toFixed(2)}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">INFORMACIÓN ADICIONAL</div>
+    <div class="grid">
+      <div class="field">
+        <div class="label">Organización</div>
+        <div class="value">${organizationName}</div>
+      </div>
+      <div class="field">
+        <div class="label">Estado</div>
+        <div class="value">
+          <span class="status status-${fare.status.toLowerCase()}">${statusText}</span>
         </div>
-      </body>
-      </html>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
     `;
   }
 
   private generateAllPDFsContent(): string {
     return `
-      <!DOCTYPE html>
-      <html>
-      <head>
-        <meta charset="utf-8">
-        <title>Reporte de Tarifas</title>
-        <style>
-          body { 
-            font-family: Arial, sans-serif; 
-            margin: 20px; 
-            color: #333; 
-            line-height: 1.6;
-          }
-          .header { 
-            text-align: center; 
-            border-bottom: 2px solid #3b82f6; 
-            padding-bottom: 20px; 
-            margin-bottom: 30px; 
-          }
-          table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-          }
-          th, td { 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-            text-align: left; 
-          }
-          th { 
-            background-color: #f3f4f6; 
-            font-weight: bold; 
-          }
-          .status-active { background: #d1fae5; color: #065f46; padding: 4px 8px; border-radius: 12px; font-size: 11px; }
-          .status-inactive { background: #fee2e2; color: #991b1b; padding: 4px 8px; border-radius: 12px; font-size: 11px; }
-          @media print {
-            body { margin: 0; }
-          }
-        </style>
-      </head>
-      <body>
-        <div class="header">
-          <h1>REPORTE COMPLETO DE TARIFAS</h1>
-          <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
-          <p>Total de tarifas: ${this.filteredFares.length}</p>
-        </div>
+     <!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Reporte de Tarifas</title>
+  <style>
+    :root {
+      --brand:#2563eb;
+      --brand-light:#eff6ff;
+      --muted:#6b7280;
+      --success-bg:#d1fae5;
+      --success:#065f46;
+      --danger-bg:#fee2e2;
+      --danger:#991b1b;
+      --border:#e5e7eb;
+      --bg:#f9fafb;
+    }
+    body {
+      font-family:"Segoe UI",Arial,sans-serif;
+      margin:32px;
+      background:var(--bg);
+      color:#111827;
+      line-height:1.6;
+    }
+    .header {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      border-bottom:3px solid var(--brand);
+      padding-bottom:15px;
+      margin-bottom:25px;
+    }
+    .header img {
+      max-height:70px;
+    }
+    .header-info {
+      text-align:right;
+    }
+    .header-info h1 {
+      margin:0;
+      font-size:22px;
+      color:#0f172a;
+    }
+    .header-info p {
+      margin:2px 0;
+      font-size:13px;
+      color:var(--muted);
+    }
+    table {
+      width:100%;
+      border-collapse:collapse;
+      background:white;
+      border-radius:8px;
+      overflow:hidden;
+    }
+    th, td {
+      border:1px solid var(--border);
+      padding:10px 12px;
+      font-size:14px;
+    }
+    th {
+      background:var(--brand-light);
+      color:#1e3a8a;
+      font-weight:600;
+      text-align:left;
+    }
+    tr:nth-child(even) {
+      background:#f9fafb;
+    }
+    .status-active {
+      background:var(--success-bg);
+      color:var(--success);
+      padding:4px 10px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:bold;
+    }
+    .status-inactive {
+      background:var(--danger-bg);
+      color:var(--danger);
+      padding:4px 10px;
+      border-radius:12px;
+      font-size:12px;
+      font-weight:bold;
+    }
+    @media print {
+      body { margin:0; padding:10mm; background:#fff; print-color-adjust:exact; -webkit-print-color-adjust:exact; }
+      .header { border-color:black; }
+      table { border:1px solid #999; }
+      @page { size:A4; margin:12mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <!-- Logo con múltiples rutas de respaldo -->
+    <img 
+      alt="Logo"
+      src="https://drive.google.com/uc?export=view&id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6"
+      onerror="if(!this.dataset.fallback){this.dataset.fallback=1;this.src='https://drive.google.com/thumbnail?id=1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6&sz=w600';}
+               else if(this.dataset.fallback==1){this.dataset.fallback=2;this.src='https://lh3.googleusercontent.com/d/1RJBsvtfYi76XpXmelFv2MVfMxsJo1RY6=s600';}
+               else {this.removeAttribute('onerror'); this.alt='[Logo no disponible]';}" />
 
-        <table>
-          <thead>
-            <tr>
-              <th>CÓDIGO</th>
-              <th>NOMBRE</th>
-              <th>TIPO</th>
-              <th>MONTO</th>
-              <th>ORGANIZACIÓN</th>
-              <th>ESTADO</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${this.filteredFares.map(fare => `
-              <tr>
-                <td>${fare.fareCode}</td>
-                <td>${fare.fareName}</td>
-                <td>${fare.fareType}</td>
-                <td>S/. ${fare.fareAmount?.toFixed(2)}</td>
-                <td>${this.getNameOrganization(fare.organizationId)}</td>
-                <td><span class="status status-${fare.status.toLowerCase()}">${this.getStatusLabel(fare.status)}</span></td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
+    <div class="header-info">
+      <h1>REPORTE COMPLETO DE TARIFAS</h1>
+      <p>Fecha de generación: ${new Date().toLocaleDateString('es-ES')}</p>
+      <p>Total de tarifas: ${this.filteredFares.length}</p>
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>CÓDIGO</th>
+        <th>NOMBRE</th>
+        <th>TIPO</th>
+        <th>MONTO</th>
+        <th>ORGANIZACIÓN</th>
+        <th>ESTADO</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${this.filteredFares.map(fare => `
+        <tr>
+          <td>${fare.fareCode}</td>
+          <td>${fare.fareName}</td>
+          <td>${fare.fareType}</td>
+          <td>S/. ${fare.fareAmount?.toFixed(2)}</td>
+          <td>${this.getNameOrganization(fare.organizationId)}</td>
+          <td><span class="status status-${fare.status.toLowerCase()}">${this.getStatusLabel(fare.status)}</span></td>
+        </tr>
+      `).join('')}
+    </tbody>
+  </table>
+</body>
+</html>
+
     `;
   }
 
